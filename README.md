@@ -1,14 +1,15 @@
 # Job Portal
 
-This repository currently hosts the **normalized PostgreSQL schema** for the Job Portal core entities: users, roles (RBAC), jobs, and applications.
+This repository hosts the **normalized PostgreSQL schema** for the Job Portal core entities: users, roles (RBAC), jobs, and applications.
 
 ## What is included
 
-- **Migrations**: `db/migrations/000001_initial_job_portal_schema.{up,down}.sql` create and drop the core tables with foreign keys, check constraints, and performance-oriented indexes.
+- **Canonical SQL migrations**: `db/migrations/000001_initial_job_portal_schema.{up,down}.sql` create and drop the core tables with foreign keys, check constraints, and performance-oriented indexes.
+- **Prisma (ORM path)**: `prisma/schema.prisma` models the same tables for TypeScript/JavaScript backends. The initial Prisma migration (`prisma/migrations/20250521120000_job_portal_init/migration.sql`) is a copy of `000001`…`up.sql` so `prisma migrate deploy` produces an identical schema. Use either raw SQL **or** Prisma in a pipeline, not both applied twice to the same database.
 - **ERD**: `docs/job-portal-erd.md` contains a Mermaid entity-relationship diagram (renders on GitHub; export to PNG or PDF from your Markdown viewer if needed).
 - **Sample SQL**: `db/sample_queries.sql` exercises registration-style inserts, role assignment, job posting, application submission, and common reporting joins.
 - **Constraint check**: `db/constraint_tests.sql` asserts the one-application-per-candidate-per-job rule.
-- **CI**: `.github/workflows/validate-db-schema.yml` applies the migration and runs the SQL scripts against PostgreSQL 16.
+- **CI**: `.github/workflows/validate-db-schema.yml` applies the SQL migration and runs the SQL scripts against PostgreSQL 16.
 
 ## Design highlights
 
@@ -26,6 +27,18 @@ When Docker and `psql` are available:
 ```
 
 The script starts `docker compose` (PostgreSQL on port **5433**), reapplies `down` then `up`, and runs `db/sample_queries.sql`.
+
+## Prisma quick start
+
+See **[docs/database-migrations.md](docs/database-migrations.md)** for `DATABASE_URL`, apply/rollback notes, and troubleshooting.
+
+```bash
+cp .env.example .env
+docker compose up -d postgres
+npm install && npm run prisma:generate
+npm run migrate:deploy
+npm run db:seed   # optional; roles are already inserted by the initial migration
+```
 
 ## ORM compatibility
 

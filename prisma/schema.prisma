@@ -1,0 +1,106 @@
+// Prisma schema aligned with `db/migrations/000001_initial_job_portal_schema.up.sql`.
+// CHECK constraints, table/column comments, and expression indexes (e.g. lower(email))
+// live in the SQL migration; Prisma Client does not model CHECKs or expression indexes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String    @db.VarChar(320)
+  passwordHash    String    @map("password_hash") @db.VarChar(255)
+  displayName     String    @map("display_name") @db.VarChar(120)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  status          String    @default("active") @db.VarChar(32)
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employerJobs     Job[]         @relation("EmployerJobs")
+  applications     Application[] @relation("CandidateApplications")
+  userRoles        UserRole[]    @relation("UserRoleMembership")
+  grantedUserRoles UserRole[]    @relation("UserRoleGrantor")
+
+  @@index([status, createdAt(sort: Desc)], map: "ix_users_status_created_at")
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement()) @db.SmallInt
+  name        String   @unique(map: "ux_roles_name") @db.VarChar(64)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId    String   @map("user_id") @db.Uuid
+  roleId    Int      @map("role_id") @db.SmallInt
+  grantedAt DateTime @default(now()) @map("granted_at") @db.Timestamptz(6)
+  grantedBy String?  @map("granted_by") @db.Uuid
+
+  user    User @relation("UserRoleMembership", fields: [userId], references: [id], onDelete: Cascade)
+  role    Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  grantor User? @relation("UserRoleGrantor", fields: [grantedBy], references: [id], onDelete: SetNull)
+
+  @@id([userId, roleId])
+  @@index([roleId], map: "ix_user_roles_role_id")
+  @@index([userId], map: "ix_user_roles_user_id")
+  @@map("user_roles")
+}
+
+model Job {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employerUserId  String    @map("employer_user_id") @db.Uuid
+  title           String    @db.VarChar(200)
+  description     String    @db.Text
+  location        String?   @db.VarChar(200)
+  employmentType  String?   @map("employment_type") @db.VarChar(64)
+  salaryMinCents  Int?      @map("salary_min_cents")
+  salaryMaxCents  Int?      @map("salary_max_cents")
+  currencyCode    String    @default("USD") @map("currency_code") @db.Char(3)
+  status          String    @default("draft") @db.VarChar(32)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(6)
+  closesAt        DateTime? @map("closes_at") @db.Timestamptz(6)
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employer     User           @relation("EmployerJobs", fields: [employerUserId], references: [id], onDelete: Restrict)
+  applications Application[]
+
+  @@index([employerUserId], map: "ix_jobs_employer_user_id")
+  @@index([status, publishedAt(sort: Desc)], map: "ix_jobs_status_published_at")
+  @@map("jobs")
+}
+
+model Application {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId           String   @map("job_id") @db.Uuid
+  candidateUserId String   @map("candidate_user_id") @db.Uuid
+  status          String   @default("submitted") @db.VarChar(32)
+  coverLetter     String?  @map("cover_letter") @db.Text
+  resumeUrl       String?  @map("resume_url") @db.VarChar(2048)
+  metadata        Json     @default("{}")
+  appliedAt       DateTime @default(now()) @map("applied_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate User @relation("CandidateApplications", fields: [candidateUserId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, candidateUserId], map: "ux_applications_job_candidate")
+  @@index([candidateUserId, appliedAt(sort: Desc)], map: "ix_applications_candidate_user_id")
+  @@index([jobId, appliedAt(sort: Desc)], map: "ix_applications_job_id")
+  @@index([status], map: "ix_applications_status")
+  @@map("applications")
+}

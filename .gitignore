@@ -5,6 +5,7 @@ vendor/
 # Env
 .env
 .env.local
+.env.test
 
 # Build / IDE
 dist/
