@@ -33,3 +33,33 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build frontend Docker image
+        run: docker build -t job-portal-frontend:ci ./job-portal-frontend
+
+      - name: Start container
+        run: |
+          docker run -d --name job-portal-frontend-ci -p 8080:8080 job-portal-frontend:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs job-portal-frontend-ci
+          exit 1
+
+      - name: Verify static assets and runtime config
+        run: |
+          curl -sf http://localhost:8080/ | grep -q 'id="root"'
+          curl -sf http://localhost:8080/env-config.js | grep -q 'VITE_API_BASE_URL'
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f job-portal-frontend-ci

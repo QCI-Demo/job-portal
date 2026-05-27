@@ -25,3 +25,14 @@ npm run dev
 | `npm test -- --coverage` | Run tests with coverage report |
 
 Continuous integration runs lint, tests with coverage, and build on every push (see [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)).
+
+### Docker
+
+Build and run the production frontend image (multi-stage Node + nginx):
+
+```bash
+docker build -t job-portal-frontend:latest ./job-portal-frontend
+docker run --rm -p 3000:8080 job-portal-frontend:latest
+```
+
+See [`job-portal-frontend/DOCKER.md`](./job-portal-frontend/DOCKER.md) for build args, runtime environment variables, and troubleshooting.

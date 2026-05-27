@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+dist-ssr
+*.local
+.env
+.env.*
+.git
+.github
+*.md
+!README.md
+Dockerfile
+.dockerignore
+npm-debug.log*
