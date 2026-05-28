@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Build stage — compile the Vite/React app
 # -----------------------------------------------------------------------------
-FROM node:22-alpine AS build
+FROM docker.io/library/node:22-alpine AS build
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ RUN npm run build
 # -----------------------------------------------------------------------------
 # Production stage — serve static assets with nginx (non-root, port 8080)
 # -----------------------------------------------------------------------------
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS production
+FROM docker.io/nginxinc/nginx-unprivileged:1.27-alpine AS production
 
 USER 0
 RUN rm -f /etc/nginx/conf.d/default.conf

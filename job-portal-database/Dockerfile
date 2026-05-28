@@ -2,7 +2,7 @@
 # Build from repository root:
 #   docker build -f job-portal-database/Dockerfile -t job-portal-database:latest .
 
-FROM postgres:16-alpine
+FROM docker.io/library/postgres:16-alpine
 
 LABEL org.opencontainers.image.title="Job Portal PostgreSQL"
 LABEL org.opencontainers.image.description="PostgreSQL 16 with schema initialization for Job Portal"

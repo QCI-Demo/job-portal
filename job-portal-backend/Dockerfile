@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 # Dependencies & Prisma client generation
 # -----------------------------------------------------------------------------
-FROM node:22-alpine AS build
+FROM docker.io/library/node:22-alpine AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY job-portal-backend/src ./src
 # -----------------------------------------------------------------------------
 # Production image — non-root, minimal runtime
 # -----------------------------------------------------------------------------
-FROM node:22-alpine AS production
+FROM docker.io/library/node:22-alpine AS production
 
 RUN addgroup -g 1001 app && adduser -u 1001 -G app -D -H app
 
