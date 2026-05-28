@@ -1,0 +1,52 @@
+name: Validate database seed
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  prisma-seed:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jobportal
+          POSTGRES_PASSWORD: jobportal
+          POSTGRES_DB: jobportal
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jobportal -d jobportal"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://jobportal:jobportal@localhost:5432/jobportal?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Apply migrations on fresh database
+        run: npm run migrate:deploy
+
+      - name: Seed database
+        run: npm run db:seed
+
+      - name: Validate seed data
+        run: npm run db:seed:validate
+
+      - name: Verify idempotent re-seed
+        run: |
+          npm run db:seed
+          npm run db:seed:validate

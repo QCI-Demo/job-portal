@@ -1,0 +1,301 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description": "Representative Job Portal sample data for development and automated testing.",
+    "devPasswordPlaintext": "Password123!",
+    "devPasswordHash": "$2b$10$ayBK6zMzETsLwn75rJxUEewXsPzWozlBKuvX2fslERFu3PInWency"
+  },
+  "roles": [
+    { "name": "candidate", "description": "Job seeker: search and apply." },
+    { "name": "employer", "description": "Hiring party: post jobs and review applications." },
+    { "name": "admin", "description": "Platform operator: elevated access." }
+  ],
+  "users": [
+    {
+      "id": "a1111111-1111-4111-8111-111111111101",
+      "email": "employer@example.com",
+      "displayName": "Pat Employer",
+      "status": "active",
+      "emailVerifiedAt": "2026-01-15T10:00:00.000Z",
+      "metadata": { "company": "Example Corp", "scenario": "core-employer-with-jobs" },
+      "roles": ["employer"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111102",
+      "email": "candidate@example.com",
+      "displayName": "Chris Candidate",
+      "status": "active",
+      "emailVerifiedAt": "2026-01-20T14:30:00.000Z",
+      "metadata": { "headline": "Backend engineer", "scenario": "core-candidate-with-applications" },
+      "roles": ["candidate"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111103",
+      "email": "admin@example.com",
+      "displayName": "Ada Admin",
+      "status": "active",
+      "emailVerifiedAt": "2026-01-01T08:00:00.000Z",
+      "metadata": { "scenario": "platform-admin" },
+      "roles": ["admin"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111104",
+      "email": "hiring@acmecorp.com",
+      "displayName": "Alex Acme",
+      "status": "active",
+      "emailVerifiedAt": "2026-02-01T09:00:00.000Z",
+      "metadata": { "company": "Acme Corp", "scenario": "employer-multiple-jobs-mixed-statuses" },
+      "roles": ["employer"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111105",
+      "email": "inactive-employer@example.com",
+      "displayName": "Inactive Corp",
+      "status": "active",
+      "emailVerifiedAt": null,
+      "metadata": { "scenario": "edge-employer-no-jobs" },
+      "roles": ["employer"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111106",
+      "email": "jane.doe@example.com",
+      "displayName": "Jane Doe",
+      "status": "active",
+      "emailVerifiedAt": "2026-03-10T11:00:00.000Z",
+      "metadata": { "headline": "Full-stack developer", "scenario": "candidate-multiple-applications" },
+      "roles": ["candidate"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111107",
+      "email": "new-grad@example.com",
+      "displayName": "Sam Newgrad",
+      "status": "active",
+      "emailVerifiedAt": "2026-04-01T16:00:00.000Z",
+      "metadata": { "scenario": "edge-candidate-no-applications" },
+      "roles": ["candidate"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111108",
+      "email": "suspended-employer@example.com",
+      "displayName": "Suspended Employer",
+      "status": "suspended",
+      "emailVerifiedAt": "2025-12-01T12:00:00.000Z",
+      "metadata": { "scenario": "edge-suspended-user" },
+      "roles": ["employer"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111109",
+      "email": "multi-role@example.com",
+      "displayName": "Taylor Dual",
+      "status": "active",
+      "emailVerifiedAt": "2026-02-15T10:00:00.000Z",
+      "metadata": { "scenario": "edge-user-with-multiple-roles" },
+      "roles": ["candidate", "employer"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111110",
+      "email": "deleted-candidate@example.com",
+      "displayName": "Deleted User",
+      "status": "deleted",
+      "emailVerifiedAt": null,
+      "metadata": { "scenario": "edge-deleted-user-status" },
+      "roles": ["candidate"]
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111111",
+      "email": "rejected-only@example.com",
+      "displayName": "Riley Rejected",
+      "status": "active",
+      "emailVerifiedAt": "2026-04-05T10:00:00.000Z",
+      "metadata": { "scenario": "candidate-with-rejected-application-only" },
+      "roles": ["candidate"]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "f2222222-2222-4222-8222-222222222201",
+      "employerUserId": "a1111111-1111-4111-8111-111111111101",
+      "title": "Senior Backend Engineer",
+      "description": "Design APIs and relational schemas for a job portal. Experience with PostgreSQL and Gin required.",
+      "location": "Remote",
+      "employmentType": "full_time",
+      "salaryMinCents": 14000000,
+      "salaryMaxCents": 18000000,
+      "currencyCode": "USD",
+      "status": "published",
+      "publishedAt": "2026-03-01T09:00:00.000Z",
+      "closesAt": "2026-06-30T23:59:59.000Z",
+      "metadata": { "department": "Engineering", "scenario": "core-published-job-with-applications" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222202",
+      "employerUserId": "a1111111-1111-4111-8111-111111111101",
+      "title": "DevOps Engineer",
+      "description": "Draft listing — not yet visible to candidates.",
+      "location": "Austin, TX",
+      "employmentType": "full_time",
+      "salaryMinCents": 12000000,
+      "salaryMaxCents": 15000000,
+      "currencyCode": "USD",
+      "status": "draft",
+      "publishedAt": null,
+      "closesAt": null,
+      "metadata": { "scenario": "edge-draft-job-no-applications" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222203",
+      "employerUserId": "a1111111-1111-4111-8111-111111111104",
+      "title": "Frontend Developer",
+      "description": "Build accessible React interfaces for the job portal.",
+      "location": "Hybrid — San Francisco, CA",
+      "employmentType": "full_time",
+      "salaryMinCents": 11000000,
+      "salaryMaxCents": 14500000,
+      "currencyCode": "USD",
+      "status": "published",
+      "publishedAt": "2026-03-15T08:00:00.000Z",
+      "closesAt": "2026-07-15T23:59:59.000Z",
+      "metadata": { "scenario": "published-job-multiple-applications" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222204",
+      "employerUserId": "a1111111-1111-4111-8111-111111111104",
+      "title": "Product Manager",
+      "description": "Own the candidate experience roadmap.",
+      "location": "Remote",
+      "employmentType": "full_time",
+      "salaryMinCents": 13000000,
+      "salaryMaxCents": 16000000,
+      "currencyCode": "USD",
+      "status": "published",
+      "publishedAt": "2026-04-01T10:00:00.000Z",
+      "closesAt": null,
+      "metadata": { "scenario": "edge-published-job-no-applications" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222205",
+      "employerUserId": "a1111111-1111-4111-8111-111111111104",
+      "title": "Data Analyst",
+      "description": "Closed role retained for reporting and audit tests.",
+      "location": "Chicago, IL",
+      "employmentType": "contract",
+      "salaryMinCents": 8000000,
+      "salaryMaxCents": 9500000,
+      "currencyCode": "USD",
+      "status": "closed",
+      "publishedAt": "2026-01-10T09:00:00.000Z",
+      "closesAt": "2026-03-01T23:59:59.000Z",
+      "metadata": { "scenario": "closed-job-with-terminal-applications" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222206",
+      "employerUserId": "a1111111-1111-4111-8111-111111111108",
+      "title": "Marketing Lead",
+      "description": "Posted by a suspended employer account — useful for authorization edge tests.",
+      "location": "New York, NY",
+      "employmentType": "full_time",
+      "salaryMinCents": 9000000,
+      "salaryMaxCents": 11000000,
+      "currencyCode": "USD",
+      "status": "published",
+      "publishedAt": "2026-02-20T12:00:00.000Z",
+      "closesAt": null,
+      "metadata": { "scenario": "edge-job-from-suspended-employer" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222207",
+      "employerUserId": "a1111111-1111-4111-8111-111111111101",
+      "title": "Software Engineering Intern",
+      "description": "Archived internship listing for historical search tests.",
+      "location": "Remote",
+      "employmentType": "internship",
+      "salaryMinCents": 250000,
+      "salaryMaxCents": 350000,
+      "currencyCode": "USD",
+      "status": "archived",
+      "publishedAt": "2025-09-01T09:00:00.000Z",
+      "closesAt": "2025-12-15T23:59:59.000Z",
+      "metadata": { "scenario": "edge-archived-job" }
+    },
+    {
+      "id": "f2222222-2222-4222-8222-222222222208",
+      "employerUserId": "a1111111-1111-4111-8111-111111111109",
+      "title": "Part-Time Content Writer",
+      "description": "Dual-role employer posts a part-time listing.",
+      "location": "Remote",
+      "employmentType": "part_time",
+      "salaryMinCents": 300000,
+      "salaryMaxCents": 450000,
+      "currencyCode": "USD",
+      "status": "published",
+      "publishedAt": "2026-04-10T14:00:00.000Z",
+      "closesAt": null,
+      "metadata": { "scenario": "part-time-job-from-multi-role-user" }
+    }
+  ],
+  "applications": [
+    {
+      "id": "c3333333-3333-4333-8333-333333333301",
+      "jobId": "f2222222-2222-4222-8222-222222222201",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111102",
+      "status": "submitted",
+      "coverLetter": "I enjoy PostgreSQL and Gin.",
+      "resumeUrl": "https://example.com/resumes/chris-candidate.pdf",
+      "metadata": { "scenario": "core-submitted-application" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333302",
+      "jobId": "f2222222-2222-4222-8222-222222222203",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111102",
+      "status": "in_review",
+      "coverLetter": "Built several React dashboards.",
+      "resumeUrl": "https://example.com/resumes/chris-candidate.pdf",
+      "metadata": { "scenario": "in-review-application" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333303",
+      "jobId": "f2222222-2222-4222-8222-222222222203",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111106",
+      "status": "shortlisted",
+      "coverLetter": "Strong TypeScript and accessibility focus.",
+      "resumeUrl": "https://example.com/resumes/jane-doe.pdf",
+      "metadata": { "scenario": "shortlisted-application" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333304",
+      "jobId": "f2222222-2222-4222-8222-222222222203",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111111",
+      "status": "rejected",
+      "coverLetter": "Recent bootcamp graduate eager to learn.",
+      "resumeUrl": null,
+      "metadata": { "scenario": "rejected-application-no-resume" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333305",
+      "jobId": "f2222222-2222-4222-8222-222222222205",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111106",
+      "status": "hired",
+      "coverLetter": "Experienced with SQL and Looker.",
+      "resumeUrl": "https://example.com/resumes/jane-doe.pdf",
+      "metadata": { "scenario": "hired-application-on-closed-job" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333306",
+      "jobId": "f2222222-2222-4222-8222-222222222205",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111102",
+      "status": "withdrawn",
+      "coverLetter": "Withdrew after accepting another offer.",
+      "resumeUrl": "https://example.com/resumes/chris-candidate.pdf",
+      "metadata": { "scenario": "withdrawn-application" }
+    },
+    {
+      "id": "c3333333-3333-4333-8333-333333333307",
+      "jobId": "f2222222-2222-4222-8222-222222222201",
+      "candidateUserId": "a1111111-1111-4111-8111-111111111106",
+      "status": "submitted",
+      "coverLetter": "Interested in backend platform work.",
+      "resumeUrl": "https://example.com/resumes/jane-doe.pdf",
+      "metadata": { "scenario": "second-candidate-same-job" }
+    }
+  ]
+}

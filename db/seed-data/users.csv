@@ -1,0 +1,12 @@
+id,email,display_name,status,email_verified_at,roles,scenario
+a1111111-1111-4111-8111-111111111101,employer@example.com,Pat Employer,active,2026-01-15T10:00:00.000Z,employer,core-employer-with-jobs
+a1111111-1111-4111-8111-111111111102,candidate@example.com,Chris Candidate,active,2026-01-20T14:30:00.000Z,candidate,core-candidate-with-applications
+a1111111-1111-4111-8111-111111111103,admin@example.com,Ada Admin,active,2026-01-01T08:00:00.000Z,admin,platform-admin
+a1111111-1111-4111-8111-111111111104,hiring@acmecorp.com,Alex Acme,active,2026-02-01T09:00:00.000Z,employer,employer-multiple-jobs-mixed-statuses
+a1111111-1111-4111-8111-111111111105,inactive-employer@example.com,Inactive Corp,active,,employer,edge-employer-no-jobs
+a1111111-1111-4111-8111-111111111106,jane.doe@example.com,Jane Doe,active,2026-03-10T11:00:00.000Z,candidate,candidate-multiple-applications
+a1111111-1111-4111-8111-111111111107,new-grad@example.com,Sam Newgrad,active,2026-04-01T16:00:00.000Z,candidate,edge-candidate-no-applications
+a1111111-1111-4111-8111-111111111108,suspended-employer@example.com,Suspended Employer,suspended,2025-12-01T12:00:00.000Z,employer,edge-suspended-user
+a1111111-1111-4111-8111-111111111109,multi-role@example.com,Taylor Dual,active,2026-02-15T10:00:00.000Z,"candidate|employer",edge-user-with-multiple-roles
+a1111111-1111-4111-8111-111111111110,deleted-candidate@example.com,Deleted User,deleted,,candidate,edge-deleted-user-status
+a1111111-1111-4111-8111-111111111111,rejected-only@example.com,Riley Rejected,active,2026-04-05T10:00:00.000Z,candidate,candidate-with-rejected-application-only

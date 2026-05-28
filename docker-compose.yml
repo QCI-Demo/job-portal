@@ -1,0 +1,70 @@
+# Job Portal — local multi-service stack (database, API, frontend).
+# Usage: docker compose up --build
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: job-portal-database/Dockerfile
+    image: job-portal-database:latest
+    container_name: job-portal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobportal
+      POSTGRES_PASSWORD: jobportal
+      POSTGRES_DB: jobportal
+    ports:
+      - "5433:5432"
+    volumes:
+      - job_portal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobportal -d jobportal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: job-portal-backend/Dockerfile
+    image: job-portal-backend:latest
+    container_name: job-portal-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://jobportal:jobportal@postgres:5432/jobportal?schema=public
+      PORT: "3000"
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "8080:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./job-portal-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    image: job-portal-frontend:latest
+    container_name: job-portal-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+      VITE_APP_TITLE: Job Portal
+    ports:
+      - "3000:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  job_portal_pgdata:

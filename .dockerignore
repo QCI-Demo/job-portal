@@ -1,0 +1,13 @@
+.git
+.github
+**/node_modules
+**/dist
+**/coverage
+.env
+.env.*
+**/*.md
+!job-portal-frontend/README.md
+!job-portal-backend/README.md
+job-portal-frontend/Dockerfile
+job-portal-backend/Dockerfile
+job-portal-database/Dockerfile
