@@ -8,6 +8,7 @@ This repository hosts the **normalized PostgreSQL schema** for the Job Portal co
 - **Prisma (ORM path)**: `prisma/schema.prisma` models the same tables for TypeScript/JavaScript backends. The initial Prisma migration (`prisma/migrations/20250521120000_job_portal_init/migration.sql`) is a copy of `000001`…`up.sql` so `prisma migrate deploy` produces an identical schema. Use either raw SQL **or** Prisma in a pipeline, not both applied twice to the same database.
 - **ERD**: `docs/job-portal-erd.md` contains a Mermaid entity-relationship diagram (renders on GitHub; export to PNG or PDF from your Markdown viewer if needed).
 - **Sample SQL**: `db/sample_queries.sql` exercises registration-style inserts, role assignment, job posting, application submission, and common reporting joins.
+- **Seed data**: `db/seed-data/` holds JSON/CSV sample records; `npm run db:seed` loads them idempotently via Prisma. See **[docs/database-seeding.md](docs/database-seeding.md)**.
 - **Constraint check**: `db/constraint_tests.sql` asserts the one-application-per-candidate-per-job rule.
 - **CI**: `.github/workflows/validate-db-schema.yml` applies the SQL migration and runs the SQL scripts against PostgreSQL 16.
 
@@ -37,8 +38,11 @@ cp .env.example .env
 docker compose up -d postgres
 npm install && npm run prisma:generate
 npm run migrate:deploy
-npm run db:seed   # optional; roles are already inserted by the initial migration
+npm run db:seed
+npm run db:seed:validate
 ```
+
+See **[docs/database-seeding.md](docs/database-seeding.md)** for test accounts, edge cases, reset, and troubleshooting.
 
 ## ORM compatibility
 

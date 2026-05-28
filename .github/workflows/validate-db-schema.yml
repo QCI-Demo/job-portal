@@ -27,18 +27,35 @@ jobs:
       PGUSER: jobportal
       PGPASSWORD: jobportal
       PGDATABASE: jobportal
+      DATABASE_URL: postgresql://jobportal:jobportal@localhost:5432/jobportal?schema=public
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
 
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
-      - name: Apply migrations and run sample queries
+      - name: Apply SQL migration and run sample queries
         run: |
           psql -v ON_ERROR_STOP=1 -f db/migrations/000001_initial_job_portal_schema.up.sql
           psql -v ON_ERROR_STOP=1 -f db/sample_queries.sql
 
       - name: Verify unique (job, candidate) constraint
         run: psql -v ON_ERROR_STOP=1 -f db/constraint_tests.sql
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Seed and validate sample data via Prisma
+        run: |
+          npm run db:seed
+          npm run db:seed:validate

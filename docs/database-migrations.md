@@ -39,11 +39,14 @@ Migrations are versioned SQL files under `prisma/migrations/`. Prisma records ap
 | Local (creates migration history interactively) | `npm run migrate:dev` |
 | CI / staging / production (non-interactive) | `npm run migrate:deploy` |
 
-After deploy, optional seed:
+After deploy, seed development/test data:
 
 ```bash
 npm run db:seed
+npm run db:seed:validate
 ```
+
+See **[database-seeding.md](database-seeding.md)** for the full seed workflow, test accounts, and reset instructions.
 
 ### Test database
 
