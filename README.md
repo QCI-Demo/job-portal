@@ -10,7 +10,7 @@ This repository hosts the **normalized PostgreSQL schema** for the Job Portal co
 - **Sample SQL**: `db/sample_queries.sql` exercises registration-style inserts, role assignment, job posting, application submission, and common reporting joins.
 - **Seed data**: `db/seed-data/` holds JSON/CSV sample records; `npm run db:seed` loads them idempotently via Prisma. See **[docs/database-seeding.md](docs/database-seeding.md)**.
 - **Constraint check**: `db/constraint_tests.sql` asserts the one-application-per-candidate-per-job rule.
-- **CI**: `.github/workflows/validate-db-schema.yml` applies the SQL migration and runs the SQL scripts against PostgreSQL 16.
+- **CI**: `.github/workflows/validate-db-schema.yml` applies the SQL migration and runs the SQL scripts against PostgreSQL 16; `.github/workflows/validate-db-seed.yml` runs Prisma migrate, seed, validation, and idempotent re-seed on a fresh database.
 
 ## Design highlights
 
