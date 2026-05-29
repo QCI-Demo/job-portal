@@ -23,7 +23,14 @@ docker compose up --build
 - Backend health: http://localhost:8080/health  
 - Postgres: `localhost:5433` (user/password/db: `jobportal`)
 
-See **[docs/DOCKER.md](docs/DOCKER.md)** for per-service build/run instructions, environment variables, and security notes.
+Copy environment defaults and start the stack:
+
+```bash
+cp .env.docker.example .env
+docker compose up --build
+```
+
+See **[docs/docker-compose.md](docs/docker-compose.md)** for orchestration, cloud overrides, and troubleshooting. Per-image build details: **[docs/DOCKER.md](docs/DOCKER.md)**.
 
 ### Individual images
 
@@ -52,7 +59,7 @@ npm run dev
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres
+docker compose up -d database
 npm install && npm run prisma:generate
 npm run migrate:deploy
 npm run db:seed

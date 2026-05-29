@@ -10,7 +10,7 @@ Complete the [migration setup](database-migrations.md) first:
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres
+docker compose up -d database
 npm install && npm run prisma:generate
 npm run migrate:deploy
 ```
@@ -51,7 +51,7 @@ Manual reset alternative:
 
 ```bash
 docker compose down -v
-docker compose up -d postgres
+docker compose up -d database
 npm run migrate:deploy
 npm run db:seed
 npm run db:seed:validate
@@ -107,7 +107,7 @@ Do **not** apply both Prisma migrations and raw SQL to the same database.
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | `Environment variable not found: DATABASE_URL` | Missing `.env` | Copy `.env.example` to `.env` and set `DATABASE_URL` |
-| `P1001: Can't reach database server` | Postgres not running | `docker compose up -d postgres` and verify port **5433** |
+| `P1001: Can't reach database server` | Postgres not running | `docker compose up -d database` and verify port **5433** |
 | `Foreign key constraint failed` on seed | Migrations not applied | Run `npm run migrate:deploy` first |
 | `Unique constraint failed` on email | Conflicting non-seed rows | Reset dev DB (`npm run db:reset`) or remove conflicting emails |
 | Seed validation fails on counts | Partial seed or manual deletes | Re-run `npm run db:seed` |

@@ -1,0 +1,18 @@
+# Cloud / staging overrides — internal-only database, production-oriented defaults.
+#
+# Usage:
+#   export VITE_API_BASE_URL=https://api.example.com
+#   export CORS_ORIGIN=https://app.example.com
+#   docker compose -f docker-compose.yml -f docker-compose.cloud.yml up --build -d
+
+services:
+  database:
+    ports: !reset []
+
+  backend:
+    environment:
+      NODE_ENV: production
+
+  frontend:
+    environment:
+      NODE_ENV: production

@@ -63,3 +63,15 @@ jobs:
       - name: Stop container
         if: always()
         run: docker rm -f job-portal-frontend-ci
+
+  compose-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate docker compose configuration
+        run: |
+          cp .env.docker.example .env
+          docker compose config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.cloud.yml config --quiet

@@ -20,7 +20,7 @@ Migrations are versioned SQL files under `prisma/migrations/`. Prisma records ap
    For local development with Docker Compose:
 
    ```bash
-   docker compose up -d postgres
+   docker compose up -d database
    ```
 
    Set `DATABASE_URL` in `.env` to match `docker-compose.yml` (default uses host port **5433**: `postgresql://jobportal:jobportal@localhost:5433/jobportal?schema=public`).

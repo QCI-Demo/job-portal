@@ -51,6 +51,6 @@ docker compose up --build
 
 ## Troubleshooting
 
-- **`database unreachable` in `/health`**: Confirm Postgres is running and `DATABASE_URL` uses the Docker network hostname (`postgres` in Compose, not `localhost`).
+- **`database unreachable` in `/health`**: Confirm Postgres is running and `DATABASE_URL` uses the Docker network hostname (`database` in Compose, not `localhost`).
 - **Prisma errors on startup**: Ensure migrations or init scripts have been applied to the database before starting the API.
 - **Build context errors**: Always pass the repository root as context; the Dockerfile copies `prisma/` from the parent directory.

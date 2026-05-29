@@ -15,10 +15,10 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-docker compose up -d postgres
+docker compose up -d database
 
 for _ in $(seq 1 40); do
-  if docker compose exec -T postgres pg_isready -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1; then
+  if docker compose exec -T database pg_isready -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1; then
     break
   fi
   sleep 0.5

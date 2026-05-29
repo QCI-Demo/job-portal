@@ -14,6 +14,8 @@ docker compose up --build
 | Backend  | http://localhost:8080/health       |
 | Postgres | `localhost:5433` (user `jobportal`) |
 
+Configuration reference: [docker-compose.md](./docker-compose.md).
+
 Stop and remove volumes:
 
 ```bash
