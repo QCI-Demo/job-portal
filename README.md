@@ -30,7 +30,13 @@ cp .env.docker.example .env
 docker compose up --build
 ```
 
-See **[docs/docker-compose.md](docs/docker-compose.md)** for orchestration, cloud overrides, and troubleshooting. Per-image build details: **[docs/DOCKER.md](docs/DOCKER.md)**.
+See **[docs/docker-compose.md](docs/docker-compose.md)** for orchestration, health checks, persistent storage, cloud overrides, and troubleshooting. Per-image build details: **[docs/DOCKER.md](docs/DOCKER.md)**.
+
+Validate health checks and database persistence:
+
+```bash
+./scripts/compose-health-persistence-test.sh
+```
 
 ### Individual images
 

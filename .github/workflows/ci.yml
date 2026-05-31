@@ -75,3 +75,12 @@ jobs:
           cp .env.docker.example .env
           docker compose config --quiet
           docker compose -f docker-compose.yml -f docker-compose.cloud.yml config --quiet
+
+  compose-health-persistence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Health checks and database persistence
+        run: ./scripts/compose-health-persistence-test.sh

@@ -27,6 +27,7 @@ services:
     ports:
       - "${DATABASE_HOST_PORT:-5433}:5432"
     volumes:
+      # Named volume persists PostgreSQL data across container restarts/recreates.
       - job_portal_pgdata:/var/lib/postgresql/data
     networks:
       - job_portal
@@ -34,7 +35,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-jobportal} -d ${POSTGRES_DB:-jobportal}",
+          'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" || exit 1',
         ]
       interval: 5s
       timeout: 5s
@@ -67,7 +68,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget -qO- http://127.0.0.1:${BACKEND_PORT:-3000}/health || exit 1",
+          'wget -qO- "http://127.0.0.1:$${PORT:-3000}/health" || exit 1',
         ]
       interval: 15s
       timeout: 5s
@@ -112,3 +113,7 @@ networks:
 volumes:
   job_portal_pgdata:
     name: job_portal_pgdata
+    driver: local
+    labels:
+      com.jobportal.volume: database-data
+      com.jobportal.description: PostgreSQL persistent data directory

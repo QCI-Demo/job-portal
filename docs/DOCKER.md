@@ -43,7 +43,8 @@ docker build -f job-portal-database/Dockerfile -t job-portal-database:latest .
 - **Non-root** processes in frontend (nginx) and backend (Node) images.
 - **Multi-stage** frontend build separates compile-time Node toolchain from the minimal nginx runtime.
 - **Alpine-based** images to reduce attack surface and image size.
-- **Health checks** on every service for orchestrator readiness probes.
+- **Health checks** on every service for orchestrator readiness probes (see [docker-compose.md](./docker-compose.md#health-checks-and-startup-order)).
+- **Persistent storage** for PostgreSQL via the `job_portal_pgdata` named volume (see [docker-compose.md](./docker-compose.md#persistent-database-storage)).
 - **Secrets** via environment variables at runtime; never bake credentials into images.
 
 ## CI/CD notes

@@ -27,7 +27,8 @@ RUN npm run build
 FROM docker.io/nginxinc/nginx-unprivileged:1.27-alpine AS production
 
 USER 0
-RUN rm -f /etc/nginx/conf.d/default.conf
+RUN apk add --no-cache wget \
+  && rm -f /etc/nginx/conf.d/default.conf
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker-entrypoint.sh /docker-entrypoint.d/40-env-config.sh

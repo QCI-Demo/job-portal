@@ -21,7 +21,9 @@ COPY job-portal-backend/src ./src
 # -----------------------------------------------------------------------------
 FROM docker.io/library/node:22-alpine AS production
 
-RUN addgroup -g 1001 app && adduser -u 1001 -G app -D -H app
+RUN apk add --no-cache wget \
+  && addgroup -g 1001 app \
+  && adduser -u 1001 -G app -D -H app
 
 WORKDIR /app
 

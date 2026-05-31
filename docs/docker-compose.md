@@ -83,19 +83,81 @@ In CI/CD, set secrets (`POSTGRES_PASSWORD`, etc.) in the pipeline environment or
 
 ## Health checks and startup order
 
-1. **database** — `pg_isready` until healthy  
-2. **backend** — waits for database, then `GET /health` (includes DB ping via Prisma)  
-3. **frontend** — waits for backend, then `GET /health` on nginx  
+Compose health checks gate service startup via `depends_on` with `condition: service_healthy`. Startup proceeds in order:
 
-## Verify inter-service communication
+1. **database** — `pg_isready` against container env (`POSTGRES_USER`, `POSTGRES_DB`) until healthy  
+2. **backend** — waits for database, then `GET /health` on `PORT` (includes DB ping via Prisma)  
+3. **frontend** — waits for backend, then `GET /health` on nginx (`8080` inside the container)
 
-After the stack is up:
+| Service  | Probe | Interval | Start period | Retries |
+| -------- | ----- | -------- | ------------ | ------- |
+| `database` | `pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"` | 5s | 10s | 10 |
+| `backend`  | `wget http://127.0.0.1:$PORT/health` | 15s | 20s | 5 |
+| `frontend` | `wget http://127.0.0.1:8080/health` | 15s | 10s | 5 |
+
+Inspect live health status:
+
+```bash
+docker compose ps
+docker inspect --format='{{.State.Health.Status}}' job-portal-backend
+```
+
+If a service stays unhealthy, inspect logs before the health probe exhausts retries:
+
+```bash
+docker compose logs database
+docker compose logs backend
+docker compose logs frontend
+```
+
+## Persistent database storage
+
+PostgreSQL data is stored in the named volume **`job_portal_pgdata`**, mounted at `/var/lib/postgresql/data` inside the `database` service. Data survives `docker compose restart` and container recreation; init SQL runs only when the volume is empty.
+
+| Item | Value |
+| ---- | ----- |
+| Compose volume key | `job_portal_pgdata` |
+| Docker volume name | `job_portal_pgdata` |
+| Driver | `local` |
+| Mount path (container) | `/var/lib/postgresql/data` |
+
+List and inspect the volume:
+
+```bash
+docker volume ls --filter name=job_portal_pgdata
+docker volume inspect job_portal_pgdata
+```
+
+Remove containers **and** delete persisted data:
+
+```bash
+docker compose down -v
+```
+
+For cloud deployments, back up or replicate this volume (or use a managed database) according to your provider's guidance.
+
+## Verify health checks and persistence
+
+Run the automated integration test after starting Docker:
+
+```bash
+cp .env.docker.example .env
+./scripts/compose-health-persistence-test.sh
+```
+
+This script:
+
+- Brings up the full stack and waits until all health checks pass  
+- Inserts a marker row in PostgreSQL  
+- Restarts all services and confirms the marker remains  
+- Recreates the database container (same volume) and confirms data durability  
+- Runs `./scripts/compose-smoke-test.sh` for HTTP/API checks  
+
+For a quick HTTP-only check after manual `docker compose up -d`:
 
 ```bash
 ./scripts/compose-smoke-test.sh
 ```
-
-Manual checks:
 
 ```bash
 curl -sf http://localhost:8080/health | jq .
@@ -115,6 +177,8 @@ curl -sf http://localhost:3000/health
 | Symptom | Likely cause | Fix |
 | ------- | ------------- | --- |
 | Backend stays unhealthy | Database not ready or wrong `DATABASE_URL` | `docker compose logs database`; confirm hostname is `database`, not `localhost`, inside containers |
+| Health check fails but service responds | Missing `wget` in image or wrong probe port | Rebuild images: `docker compose up --build`; backend probes `$PORT`, frontend probes nginx port `8080` |
+| Data missing after restart | Volume removed or wrong volume name | Confirm `job_portal_pgdata` exists: `docker volume inspect job_portal_pgdata`; avoid `docker compose down -v` unless resetting |
 | Frontend shows API errors | `VITE_API_BASE_URL` points at wrong host | Rebuild frontend after changing `.env`: `docker compose up --build frontend` |
 | `port is already allocated` | Host port in use | Change `*_HOST_PORT` in `.env` |
 | Empty job list | Schema initialized but no seed data | Run host seed: `cp .env.example .env && npm install && npm run db:seed` (see [database-seeding.md](./database-seeding.md)) |
