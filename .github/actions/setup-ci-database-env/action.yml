@@ -1,0 +1,57 @@
+name: Setup CI database environment
+description: >
+  Configure PostgreSQL-related environment variables from workflow inputs
+  (typically wired to GitHub Secrets). Values are written to GITHUB_ENV and
+  registered for log masking; they are never printed to the job log.
+inputs:
+  postgres_user:
+    description: PostgreSQL role name
+    required: false
+    default: jobportal
+  postgres_password:
+    description: PostgreSQL password (pass secrets.CI_POSTGRES_PASSWORD from the workflow)
+    required: false
+    default: ""
+  postgres_db:
+    description: PostgreSQL database name
+    required: false
+    default: jobportal
+  postgres_host:
+    description: PostgreSQL host for connection URLs
+    required: false
+    default: localhost
+  postgres_port:
+    description: PostgreSQL port for connection URLs
+    required: false
+    default: "5432"
+runs:
+  using: composite
+  steps:
+    - name: Configure database env (masked)
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        user="${{ inputs.postgres_user }}"
+        db="${{ inputs.postgres_db }}"
+        host="${{ inputs.postgres_host }}"
+        port="${{ inputs.postgres_port }}"
+        pass="${{ inputs.postgres_password }}"
+
+        if [[ -z "${pass}" ]]; then
+          pass="jobportal"
+        fi
+
+        echo "::add-mask::${pass}"
+
+        {
+          echo "POSTGRES_USER=${user}"
+          echo "POSTGRES_PASSWORD=${pass}"
+          echo "POSTGRES_DB=${db}"
+          echo "PGHOST=${host}"
+          echo "PGPORT=${port}"
+          echo "PGUSER=${user}"
+          echo "PGPASSWORD=${pass}"
+          echo "PGDATABASE=${db}"
+          echo "DATABASE_URL=postgresql://${user}:${pass}@${host}:${port}/${db}?schema=public"
+        } >> "${GITHUB_ENV}"

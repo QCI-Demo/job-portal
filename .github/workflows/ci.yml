@@ -5,6 +5,9 @@ on:
     branches: ['**']
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -23,16 +26,22 @@ jobs:
           cache-dependency-path: job-portal-frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci 2>&1 | tee -a "${GITHUB_WORKSPACE}/ci-step-output.log"
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint 2>&1 | tee -a "${GITHUB_WORKSPACE}/ci-step-output.log"
 
       - name: Test with coverage
-        run: npm test -- --coverage
+        run: npm test -- --coverage 2>&1 | tee -a "${GITHUB_WORKSPACE}/ci-step-output.log"
 
       - name: Build
-        run: npm run build
+        run: npm run build 2>&1 | tee -a "${GITHUB_WORKSPACE}/ci-step-output.log"
+
+      - name: Audit job logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log
 
   docker:
     runs-on: ubuntu-latest
@@ -41,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build frontend Docker image
-        run: docker build -t job-portal-frontend:ci ./job-portal-frontend
+        run: docker build -t job-portal-frontend:ci ./job-portal-frontend 2>&1 | tee ci-step-output.log
 
       - name: Start container
         run: |
@@ -52,7 +61,7 @@ jobs:
             fi
             sleep 2
           done
-          docker logs job-portal-frontend-ci
+          docker logs job-portal-frontend-ci 2>&1 | tee -a ci-step-output.log
           exit 1
 
       - name: Verify static assets and runtime config
@@ -64,17 +73,37 @@ jobs:
         if: always()
         run: docker rm -f job-portal-frontend-ci
 
+      - name: Audit job logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log
+
   compose-config:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Materialize compose .env from GitHub Secrets
+        env:
+          POSTGRES_USER: ${{ secrets.CI_POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.CI_POSTGRES_DB }}
+        run: |
+          chmod +x scripts/materialize-compose-env.sh
+          ./scripts/materialize-compose-env.sh
+
       - name: Validate docker compose configuration
         run: |
-          cp .env.docker.example .env
-          docker compose config --quiet
-          docker compose -f docker-compose.yml -f docker-compose.cloud.yml config --quiet
+          docker compose config --quiet 2>&1 | tee ci-step-output.log
+          docker compose -f docker-compose.yml -f docker-compose.cloud.yml config --quiet 2>&1 | tee -a ci-step-output.log
+
+      - name: Audit job logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log
 
   compose-health-persistence:
     runs-on: ubuntu-latest
@@ -82,5 +111,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Materialize compose .env from GitHub Secrets
+        env:
+          POSTGRES_USER: ${{ secrets.CI_POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.CI_POSTGRES_DB }}
+        run: |
+          chmod +x scripts/materialize-compose-env.sh
+          ./scripts/materialize-compose-env.sh
+
       - name: Health checks and database persistence
-        run: ./scripts/compose-health-persistence-test.sh
+        run: ./scripts/compose-health-persistence-test.sh 2>&1 | tee ci-step-output.log
+
+      - name: Audit job logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log

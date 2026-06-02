@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   prisma-seed:
     runs-on: ubuntu-latest
@@ -12,7 +15,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: jobportal
-          POSTGRES_PASSWORD: jobportal
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD != '' && secrets.CI_POSTGRES_PASSWORD || 'jobportal' }}
           POSTGRES_DB: jobportal
         ports:
           - 5432:5432
@@ -21,10 +24,17 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
-    env:
-      DATABASE_URL: postgresql://jobportal:jobportal@localhost:5432/jobportal?schema=public
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configure database credentials from secrets
+        uses: ./.github/actions/setup-ci-database-env
+        with:
+          postgres_user: jobportal
+          postgres_password: ${{ secrets.CI_POSTGRES_PASSWORD }}
+          postgres_db: jobportal
+          postgres_host: localhost
+          postgres_port: "5432"
 
       - uses: actions/setup-node@v4
         with:
@@ -32,21 +42,27 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci 2>&1 | tee ci-step-output.log
 
       - name: Generate Prisma client
-        run: npm run prisma:generate
+        run: npm run prisma:generate 2>&1 | tee -a ci-step-output.log
 
       - name: Apply migrations on fresh database
-        run: npm run migrate:deploy
+        run: npm run migrate:deploy 2>&1 | tee -a ci-step-output.log
 
       - name: Seed database
-        run: npm run db:seed
+        run: npm run db:seed 2>&1 | tee -a ci-step-output.log
 
       - name: Validate seed data
-        run: npm run db:seed:validate
+        run: npm run db:seed:validate 2>&1 | tee -a ci-step-output.log
 
       - name: Verify idempotent re-seed
         run: |
-          npm run db:seed
-          npm run db:seed:validate
+          npm run db:seed 2>&1 | tee -a ci-step-output.log
+          npm run db:seed:validate 2>&1 | tee -a ci-step-output.log
+
+      - name: Audit job logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log

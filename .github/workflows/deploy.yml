@@ -1,0 +1,123 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: Container image tag to deploy
+        required: false
+        default: latest
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || 'staging' }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    env:
+      IMAGE_TAG: ${{ github.event.inputs.image_tag || github.sha }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_TOKEN: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+      CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Capture output for secret audit
+        run: echo "Deploy job started (logs captured for audit)" | tee -a ci-step-output.log
+
+      - name: Verify required deployment secrets
+        run: |
+          set -euo pipefail
+          required=(DEPLOY_HOST DEPLOY_USER DATABASE_URL DOCKER_REGISTRY DOCKER_REGISTRY_USERNAME DOCKER_REGISTRY_TOKEN)
+          missing=()
+          for name in "${required[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              missing+=("${name}")
+            fi
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "::error::Missing GitHub Environment secrets: ${missing[*]}"
+            echo "Configure them under Settings → Environments → ${{ github.event.inputs.environment || 'staging' }}."
+            echo "See docs/secrets-management.md and .github/REQUIRED_SECRETS.md."
+            exit 1
+          fi
+          echo "Required deployment secrets are present (values not shown)."
+
+      - name: Register dynamic secrets for log masking
+        run: |
+          set -euo pipefail
+          for value in "${DOCKER_REGISTRY_TOKEN}" "${DATABASE_URL}"; do
+            if [[ -n "${value}" ]]; then
+              echo "::add-mask::${value}"
+            fi
+          done
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+
+      - name: Build and push service images
+        run: |
+          set -euo pipefail
+          exec >> ci-step-output.log 2>&1
+          registry="${DOCKER_REGISTRY}"
+          tag="${IMAGE_TAG}"
+          docker build -t "${registry}/job-portal-frontend:${tag}" ./job-portal-frontend
+          docker build -t "${registry}/job-portal-backend:${tag}" ./job-portal-backend
+          docker build -t "${registry}/job-portal-database:${tag}" ./job-portal-database
+          docker push "${registry}/job-portal-frontend:${tag}"
+          docker push "${registry}/job-portal-backend:${tag}"
+          docker push "${registry}/job-portal-database:${tag}"
+          echo "Images pushed to ${registry} with tag ${tag}"
+
+      - name: Deploy stack to target host
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          exec >> ci-step-output.log 2>&1
+          if [[ -z "${DEPLOY_SSH_KEY:-}" ]]; then
+            echo "::error::DEPLOY_SSH_KEY is not configured for this environment."
+            exit 1
+          fi
+          echo "::add-mask::${DEPLOY_SSH_KEY}"
+          key_file="$(mktemp)"
+          trap 'rm -f "${key_file}"' EXIT
+          printf '%s\n' "${DEPLOY_SSH_KEY}" > "${key_file}"
+          chmod 600 "${key_file}"
+          ssh -i "${key_file}" -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "cd /opt/job-portal && IMAGE_TAG='${IMAGE_TAG}' docker compose pull && IMAGE_TAG='${IMAGE_TAG}' docker compose up -d"
+          echo "Deployment completed on ${DEPLOY_HOST}"
+
+      - name: Audit deploy logs for secret exposure
+        if: always()
+        uses: ./.github/actions/audit-step-logs
+        with:
+          log_file: ci-step-output.log

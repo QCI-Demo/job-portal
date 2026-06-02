@@ -1,14 +1,14 @@
-# Dependencies
-node_modules/
-vendor/
 
-# Env
+build/
+# Build / IDE
+ci-step-output.log
+# Dependencies
+dist/
 .env
+# Env
 .env.local
 .env.test
-
-# Build / IDE
-dist/
-build/
 .idea/
 *.log
+node_modules/
+vendor/

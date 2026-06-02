@@ -80,3 +80,15 @@ npm run db:seed
 - `.github/workflows/ci.yml` — frontend lint, test, build
 - `.github/workflows/validate-db-schema.yml` — SQL migration validation
 - `.github/workflows/validate-db-seed.yml` — Prisma seed validation
+
+## CI/CD and secrets
+
+GitHub Actions workflows build, test, and deploy the stack. Sensitive values are stored as **GitHub Secrets** and environment-scoped secrets—never in the repository.
+
+| Workflow | Purpose |
+| -------- | ------- |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Lint, test, build, Docker, compose validation |
+| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | Build/push images and deploy to staging/production |
+| [`.github/workflows/secret-log-audit.yml`](.github/workflows/secret-log-audit.yml) | Scan completed workflow logs for credential leaks |
+
+**Documentation:** [docs/secrets-management.md](docs/secrets-management.md) · Secret inventory: [.github/REQUIRED_SECRETS.md](.github/REQUIRED_SECRETS.md)

@@ -1,0 +1,21 @@
+name: Audit step logs for secret exposure
+description: Scan captured job output for patterns that may indicate leaked credentials
+inputs:
+  log_file:
+    description: Path to the log file to scan
+    required: false
+    default: ci-step-output.log
+  fail_on_match:
+    description: Fail the step when suspicious patterns are found
+    required: false
+    default: "true"
+runs:
+  using: composite
+  steps:
+    - name: Run log exposure audit
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_WORKSPACE}/scripts/audit-workflow-logs.sh" \
+          --log-file "${{ inputs.log_file }}" \
+          $([[ "${{ inputs.fail_on_match }}" == "true" ]] && echo "--fail-on-match" || echo "--no-fail")
