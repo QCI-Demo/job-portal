@@ -20,7 +20,7 @@ export function JobDetailsPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await fetchJobById(id)
+        const data = await fetchJobById(id as string)
         if (!cancelled) {
           setJob(data)
         }

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Navbar } from './Navbar'
+import { SkipToContent } from './SkipToContent'
 
 interface LayoutProps {
   children: ReactNode
@@ -8,6 +9,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
+      <SkipToContent />
       <Navbar />
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
         {children}
