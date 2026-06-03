@@ -32,6 +32,15 @@ docker compose up --build
 
 See **[docs/docker-compose.md](docs/docker-compose.md)** for orchestration, health checks, persistent storage, cloud overrides, and troubleshooting. Per-image build details: **[docs/DOCKER.md](docs/DOCKER.md)**.
 
+### Local vs cloud
+
+| Environment | Command |
+| ----------- | ------- |
+| **Local** (published DB port for host tools) | `docker compose up --build` |
+| **Cloud / staging** (database not exposed on host) | `docker compose -f docker-compose.yml -f docker-compose.cloud.yml up --build -d` |
+
+Set `VITE_API_BASE_URL`, `CORS_ORIGIN`, and `POSTGRES_PASSWORD` in `.env` or your CI/CD secret store before cloud deploys.
+
 Validate health checks and database persistence:
 
 ```bash
