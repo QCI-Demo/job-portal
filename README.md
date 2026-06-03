@@ -2,6 +2,10 @@
 
 Candidate-facing job portal (MVP Phase 1): public pages, employer listings, and admin tools.
 
+## Frontend
+
+The public candidate UI lives in [`job-portal-frontend/`](job-portal-frontend/). See that directory's README for setup and development instructions.
+
 ## Design documentation
 
 Wireframe specifications and developer hand-off for public UI work:
