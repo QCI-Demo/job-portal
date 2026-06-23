@@ -3,6 +3,7 @@ export interface User {
   name: string
   email: string
   phone?: string
+  roles?: string[]
 }
 
 export interface RegisterPayload {

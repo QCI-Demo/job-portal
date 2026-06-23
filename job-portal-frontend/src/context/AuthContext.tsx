@@ -11,6 +11,7 @@ import { logout as logoutRequest } from '../api/auth'
 import { getCurrentUser } from '../api/users'
 import type { User } from '../types/user'
 import { ApiError } from '../api/client'
+import { clearStoredToken } from '../utils/jwt'
 
 interface AuthContextValue {
   user: User | null
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await logoutRequest()
+    clearStoredToken()
     setUser(null)
   }, [])
 
