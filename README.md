@@ -1,6 +1,6 @@
 # Job Portal
 
-Candidate-facing job portal (MVP Phase 1): public pages, employer listings, and admin tools.
+Candidate-facing job portal with employer listings, admin moderation tools, and role-based dashboards.
 
 ## Frontend
 
@@ -31,9 +31,17 @@ Wireframe specifications and developer hand-off:
 | Document | Description |
 |----------|-------------|
 | [docs/design/README.md](./docs/design/README.md) | Low-fidelity wireframes, page layouts, navigation flows, responsive notes |
-| [docs/design/DESIGN-HANDOFF.md](./docs/design/DESIGN-HANDOFF.md) | Tokens, components, accessibility, API mapping for implementation |
+| [docs/design/DESIGN-HANDOFF.md](./docs/design/DESIGN-HANDOFF.md) | Tokens, components, accessibility, API mapping for public pages |
+| [docs/design/admin-employer-wireframes.md](./docs/design/admin-employer-wireframes.md) | Admin & employer dashboard wireframes |
+| [docs/design/DASHBOARD-DESIGN-HANDOFF.md](./docs/design/DASHBOARD-DESIGN-HANDOFF.md) | Tokens, components, routes, API mapping for dashboard implementation |
 
-Figma deliverables (**Public UI Wireframes** and high-fidelity prototype) should be linked in the design README once created and shared with the Business Analyst.
+## Epic: Admin & Employer Dashboard Development
+
+Secure React-based dashboards for administrators and employers:
+
+- **Admin:** user management, job moderation, category management, site settings, analytics widgets
+- **Employer:** job posting, editing, deactivation, application review
+- **Both:** role-based access control and backend service integration
 
 ## Vision
 
