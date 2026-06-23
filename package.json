@@ -1,0 +1,46 @@
+{
+  "name": "@jobportal/dashboard-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for the Job Portal shared dashboard component library",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@jobportal/dashboard-ui",
+    "test": "npm run test --workspace=@jobportal/dashboard-ui",
+    "lint": "eslint \"packages/**/*.{ts,tsx}\" \"apps/**/*.{ts,tsx}\"",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,css}\"",
+    "storybook": "npm run storybook --workspace=@jobportal/dashboard-ui",
+    "publish:local": "npm run build && npx verdaccio --config verdaccio-config.yaml & sleep 3 && npm publish --workspace=@jobportal/dashboard-ui",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "verdaccio": "^6.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
