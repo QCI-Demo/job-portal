@@ -32,5 +32,12 @@ module.exports = {
     'react/prop-types': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   },
-  ignorePatterns: ['dist', 'build', 'node_modules', 'storybook-static', '*.cjs'],
+  ignorePatterns: [
+    'dist',
+    'build',
+    'node_modules',
+    'storybook-static',
+    '*.cjs',
+    'job-portal-frontend',
+  ],
 };
