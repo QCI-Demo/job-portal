@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { login as loginUser } from '../api/auth'
@@ -15,8 +15,10 @@ export function LoginPage() {
   const [searchParams] = useSearchParams()
   const { setUser, isAuthenticated, loading: authLoading } = useAuth()
   const [serverError, setServerError] = useState<string | null>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
 
-  const returnUrl = searchParams.get('returnUrl') ?? '/'
+  // Prefer returnUrl when present; otherwise send authenticated users home
+  const returnUrl = searchParams.get('returnUrl') || '/'
 
   const {
     register,
@@ -32,6 +34,12 @@ export function LoginPage() {
     }
   }, [authLoading, isAuthenticated, navigate, returnUrl])
 
+  useEffect(() => {
+    if (serverError) {
+      errorRef.current?.focus()
+    }
+  }, [serverError])
+
   if (!authLoading && isAuthenticated) {
     return <Navigate to={returnUrl} replace />
   }
@@ -39,6 +47,7 @@ export function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setServerError(null)
     try {
+      // Server sets HttpOnly JWT cookie via Set-Cookie; credentials: 'include' stores it
       const user = await loginUser(values)
       setUser(user)
       navigate(returnUrl, { replace: true })
@@ -103,6 +112,7 @@ export function LoginPage() {
 
           {serverError && (
             <div
+              ref={errorRef}
               role="alert"
               className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
               tabIndex={-1}

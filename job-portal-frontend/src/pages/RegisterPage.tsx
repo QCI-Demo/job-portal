@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { register as registerUser } from '../api/auth'
@@ -16,6 +16,7 @@ export function RegisterPage() {
   const [searchParams] = useSearchParams()
   const { showToast } = useToast()
   const [serverError, setServerError] = useState<string | null>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
 
   const {
     register,
@@ -26,6 +27,12 @@ export function RegisterPage() {
   })
 
   const returnUrl = searchParams.get('returnUrl')
+
+  useEffect(() => {
+    if (serverError) {
+      errorRef.current?.focus()
+    }
+  }, [serverError])
 
   const onSubmit = async (values: RegisterFormValues) => {
     setServerError(null)
@@ -89,6 +96,7 @@ export function RegisterPage() {
 
           {serverError && (
             <div
+              ref={errorRef}
               role="alert"
               className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
               tabIndex={-1}

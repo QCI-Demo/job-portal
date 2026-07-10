@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
 import { submitApplication } from '../api/applications'
@@ -28,6 +28,7 @@ function ApplyForm() {
   const [resumeError, setResumeError] = useState<string | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const errorRef = useRef<HTMLDivElement>(null)
 
   const {
     register,
@@ -36,6 +37,12 @@ function ApplyForm() {
   } = useForm<ApplyFormValues>({
     defaultValues: { coverLetter: '' },
   })
+
+  useEffect(() => {
+    if (serverError) {
+      errorRef.current?.focus()
+    }
+  }, [serverError])
 
   useEffect(() => {
     if (!jobId) return
@@ -67,7 +74,7 @@ function ApplyForm() {
     }
   }, [jobId])
 
-  const handleResumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleResumeChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     setResumeError(null)
     if (!file) {
@@ -203,7 +210,12 @@ function ApplyForm() {
 
       <div className="rounded-xl border border-surface-border bg-white p-6 shadow-card">
         {serverError && (
-          <div role="alert" className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+          <div
+            ref={errorRef}
+            role="alert"
+            className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
+            tabIndex={-1}
+          >
             {serverError}
           </div>
         )}

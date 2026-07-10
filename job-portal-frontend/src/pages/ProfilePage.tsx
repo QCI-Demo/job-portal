@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { ApiError } from '../api/client'
-import { updateCurrentUser } from '../api/users'
+import { getCurrentUser, updateCurrentUser } from '../api/users'
 import { FormField } from '../components/FormField'
 import { Layout } from '../components/Layout'
 import { ProtectedRoute } from '../components/ProtectedRoute'
@@ -16,6 +16,7 @@ function ProfileForm() {
   const { user, setUser, logout } = useAuth()
   const { showToast } = useToast()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
 
   const {
     register,
@@ -29,6 +30,42 @@ function ProfileForm() {
       phone: user?.phone ?? '',
     },
   })
+
+  // Fetch current user on mount via JWT HttpOnly session cookie (GET /users/me)
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadProfile() {
+      setProfileLoading(true)
+      setServerError(null)
+      try {
+        const current = await getCurrentUser()
+        if (!cancelled) {
+          setUser(current)
+        }
+      } catch (error) {
+        if (cancelled) return
+        if (error instanceof ApiError && error.status === 401) {
+          setUser(null)
+          return
+        }
+        setServerError(
+          error instanceof ApiError
+            ? error.message
+            : 'Unable to load your profile. Please try again.',
+        )
+      } finally {
+        if (!cancelled) {
+          setProfileLoading(false)
+        }
+      }
+    }
+
+    void loadProfile()
+    return () => {
+      cancelled = true
+    }
+  }, [setUser])
 
   useEffect(() => {
     if (user) {
@@ -129,76 +166,89 @@ function ProfileForm() {
             </div>
           </div>
 
+          {profileLoading && (
+            <p role="status" aria-live="polite" className="mb-4 text-sm text-ink-muted">
+              Loading your profile…
+            </p>
+          )}
+
           {serverError && (
-            <div role="alert" className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+            <div
+              role="alert"
+              className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
+              tabIndex={-1}
+            >
               {serverError}
             </div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate aria-label="Profile form">
-            <div className="space-y-4">
-              <FormField
-                id="profile-name"
-                label="Full name"
-                required
-                error={errors.name?.message}
-                inputProps={{
-                  ...register('name', {
-                    required: 'Name is required',
-                    minLength: { value: 2, message: 'Name must be at least 2 characters' },
-                  }),
-                  autoComplete: 'name',
-                }}
-              />
+            <fieldset disabled={profileLoading} className="min-w-0 border-0 p-0">
+              <legend className="sr-only">Personal information</legend>
+              <div className="space-y-4">
+                <FormField
+                  id="profile-name"
+                  label="Full name"
+                  required
+                  error={errors.name?.message}
+                  inputProps={{
+                    ...register('name', {
+                      required: 'Name is required',
+                      minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                    }),
+                    autoComplete: 'name',
+                  }}
+                />
 
-              <FormField
-                id="profile-email"
-                label="Email"
-                required
-                error={errors.email?.message}
-                type="email"
-                inputProps={{
-                  ...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Enter a valid email address',
-                    },
-                  }),
-                  autoComplete: 'email',
-                }}
-              />
+                <FormField
+                  id="profile-email"
+                  label="Email"
+                  required
+                  error={errors.email?.message}
+                  type="email"
+                  inputProps={{
+                    ...register('email', {
+                      required: 'Email is required',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Enter a valid email address',
+                      },
+                    }),
+                    autoComplete: 'email',
+                  }}
+                />
 
-              <FormField
-                id="profile-phone"
-                label="Phone"
-                error={errors.phone?.message}
-                type="tel"
-                hint="Optional. Include country code if outside your region."
-                inputProps={{
-                  ...register('phone', {
-                    validate: (value) => {
-                      const trimmed = value?.trim() ?? ''
-                      if (!trimmed) return true
-                      return (
-                        /^[+]?[\d\s()-]{7,20}$/.test(trimmed) ||
-                        'Enter a valid phone number'
-                      )
-                    },
-                  }),
-                  autoComplete: 'tel',
-                }}
-              />
-            </div>
+                <FormField
+                  id="profile-phone"
+                  label="Phone"
+                  error={errors.phone?.message}
+                  type="tel"
+                  hint="Optional. Include country code if outside your region."
+                  inputProps={{
+                    ...register('phone', {
+                      validate: (value) => {
+                        const trimmed = value?.trim() ?? ''
+                        if (!trimmed) return true
+                        return (
+                          /^[+]?[\d\s()-]{7,20}$/.test(trimmed) ||
+                          'Enter a valid phone number'
+                        )
+                      },
+                    }),
+                    autoComplete: 'tel',
+                  }}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-              aria-busy={isSubmitting}
-              className="btn-primary mt-6"
-            >
-              {isSubmitting ? 'Saving…' : 'Save changes'}
-            </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !isDirty || profileLoading}
+                aria-busy={isSubmitting}
+                className="btn-primary mt-6"
+              >
+                {isSubmitting ? 'Saving…' : 'Save changes'}
+              </button>
+            </fieldset>
           </form>
         </section>
       </div>
