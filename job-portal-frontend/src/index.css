@@ -3,8 +3,54 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #1565c0;
+    --color-primary-hover: #0d47a1;
+    --color-secondary: #455a64;
+    --color-text: #212121;
+    --color-text-muted: #616161;
+    --color-background: #ffffff;
+    --color-surface: #f5f5f5;
+    --color-border: #e0e0e0;
+    --color-error: #c62828;
+    --color-success: #2e7d32;
+    --color-footer-bg: #263238;
+    --color-footer-text: #eceff1;
+    --header-height: 64px;
+    --container-max: 1200px;
+    --radius-md: 8px;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-surface font-sans text-ink antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(21, 101, 192, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(38, 50, 56, 0.06), transparent);
+    background-attachment: fixed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded-md border border-surface-border bg-white px-6 py-3 text-base font-medium text-ink transition hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2;
+  }
+
+  .input-field {
+    @apply w-full rounded-md border border-surface-border bg-white px-3 py-2.5 text-base text-ink shadow-sm transition placeholder:text-ink-muted/70 focus:border-primary-600 focus:outline-none focus:ring-1 focus:ring-primary-600;
   }
 }
 

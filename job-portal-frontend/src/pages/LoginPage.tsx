@@ -55,8 +55,11 @@ export function LoginPage() {
     <Layout>
       <div className="mx-auto flex max-w-md flex-col px-4 py-10 sm:px-6">
         <header className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Sign in</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-primary-700">
+            JobPortal
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-bold text-ink">Sign in</h1>
+          <p className="mt-2 text-sm text-ink-muted">
             New here?{' '}
             <Link
               to={
@@ -64,14 +67,40 @@ export function LoginPage() {
                   ? `/register?returnUrl=${encodeURIComponent(returnUrl)}`
                   : '/register'
               }
-              className="font-medium text-primary-700 underline hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="font-medium text-primary-700 underline hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
             >
               Create an account
             </Link>
           </p>
         </header>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-surface-border bg-white p-6 shadow-card">
+          <div
+            className="mb-6 flex rounded-lg bg-surface p-1"
+            role="tablist"
+            aria-label="Authentication"
+          >
+            <span
+              role="tab"
+              aria-selected="true"
+              className="flex-1 rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-primary-800 shadow-sm"
+            >
+              Login
+            </span>
+            <Link
+              role="tab"
+              aria-selected="false"
+              to={
+                returnUrl !== '/'
+                  ? `/register?returnUrl=${encodeURIComponent(returnUrl)}`
+                  : '/register'
+              }
+              className="flex-1 rounded-md px-3 py-2 text-center text-sm font-medium text-ink-secondary hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
+            >
+              Register
+            </Link>
+          </div>
+
           {serverError && (
             <div
               role="alert"
@@ -122,7 +151,7 @@ export function LoginPage() {
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="mt-6 flex min-h-[44px] w-full items-center justify-center rounded-md bg-primary-600 px-4 py-3 text-base font-semibold text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary mt-6 w-full"
             >
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </button>

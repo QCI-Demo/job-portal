@@ -75,8 +75,8 @@ function ProfileForm() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">My profile</h1>
-        <p className="mt-2 text-slate-600">View and update your personal information.</p>
+        <h1 className="font-display text-3xl font-bold text-ink sm:text-4xl">My profile</h1>
+        <p className="mt-2 text-ink-muted">View and update your personal information.</p>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
@@ -94,7 +94,7 @@ function ProfileForm() {
               <li>
                 <Link
                   to="/jobs"
-                  className="block rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="block rounded-md px-3 py-2 text-sm text-ink-secondary hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
                 >
                   Browse jobs
                 </Link>
@@ -104,14 +104,14 @@ function ProfileForm() {
           <button
             type="button"
             onClick={() => void logout().then(() => window.location.assign('/'))}
-            className="mt-6 min-h-[44px] rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="btn-secondary mt-6 !px-4 !py-2 !text-sm"
           >
             Log out
           </button>
         </aside>
 
         <section
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="rounded-xl border border-surface-border bg-white p-6 shadow-card"
           aria-labelledby="personal-info-heading"
         >
           <div className="mb-6 flex items-center gap-4">
@@ -122,10 +122,10 @@ function ProfileForm() {
               {initials || '?'}
             </div>
             <div>
-              <h2 id="personal-info-heading" className="text-lg font-semibold text-slate-900">
+              <h2 id="personal-info-heading" className="text-lg font-semibold text-ink">
                 Personal information
               </h2>
-              <p className="text-sm text-slate-600">Update your contact details below.</p>
+              <p className="text-sm text-ink-muted">Update your contact details below.</p>
             </div>
           </div>
 
@@ -195,7 +195,7 @@ function ProfileForm() {
               type="submit"
               disabled={isSubmitting || !isDirty}
               aria-busy={isSubmitting}
-              className="mt-6 flex min-h-[44px] items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary mt-6"
             >
               {isSubmitting ? 'Saving…' : 'Save changes'}
             </button>

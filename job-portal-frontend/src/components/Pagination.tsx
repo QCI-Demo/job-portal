@@ -28,7 +28,7 @@ export function Pagination({
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
         aria-label="Go to previous page"
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="min-h-[44px] rounded-md border border-surface-border bg-white px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
       >
         Previous
       </button>
@@ -40,10 +40,10 @@ export function Pagination({
               aria-label={`Go to page ${page}`}
               aria-current={page === currentPage ? 'page' : undefined}
               onClick={() => onPageChange(page)}
-              className={`min-w-[2.5rem] rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+              className={`min-h-[44px] min-w-[2.75rem] rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 ${
                 page === currentPage
                   ? 'bg-primary-600 text-white'
-                  : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                  : 'border border-surface-border bg-white text-ink-secondary hover:bg-surface'
               }`}
             >
               {page}
@@ -57,7 +57,7 @@ export function Pagination({
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
         aria-label="Go to next page"
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="min-h-[44px] rounded-md border border-surface-border bg-white px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
       >
         Next
       </button>

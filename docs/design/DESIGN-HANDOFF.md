@@ -7,19 +7,23 @@
 
 ---
 
-## 1. Figma source of truth
+## 1. Source of truth (coded prototype)
 
-| Asset | Figma project | Frame width | Notes |
-|-------|---------------|-------------|--------|
-| Low-fidelity | Public UI Wireframes | 1440px desktop | Grayscale placeholders; linked flows |
-| High-fidelity | Public UI – High Fidelity (duplicate of wireframes) | 1440, 768, 375 | Brand styles, components, prototype |
+Figma was skipped for this delivery; the React app under `job-portal-frontend/` is the interactive high-fidelity prototype.
 
-**Links (update when available):**
+| Asset | Location | Notes |
+|-------|----------|--------|
+| Low-fidelity structure | [Wireframes README](./README.md) | ASCII layouts + navigation flows |
+| High-fidelity prototype | `job-portal-frontend/` (`npm run dev`) | Brand tokens, responsive breakpoints, interactions |
+| Design tokens | CSS variables in `src/index.css` + Tailwind theme | Match tables below |
+
+**Shareable preview:** run the Vite app and share the local/preview URL with the Business Analyst and developers.
+
+**Legacy Figma placeholders (optional future sync):**
 
 - Wireframes file: `https://www.figma.com/file/PLACEHOLDER-public-ui-wireframes`
 - Hi-fi prototype: `https://www.figma.com/proto/PLACEHOLDER-public-ui-hifi`
 
-Export specs via Figma **Inspect** (spacing, colors, typography). Prefer **design tokens** below for implementation consistency.
 
 ---
 
@@ -50,13 +54,14 @@ Do not rely on color alone for status (pair with icon + text).
 
 | Token | Font | Size / line-height | Weight | Usage |
 |-------|------|-------------------|--------|--------|
-| `--font-family` | `Inter, system-ui, sans-serif` | — | — | All UI |
-| `--text-h1` | Inter | 32px / 40px | 700 | Page titles |
-| `--text-h2` | Inter | 24px / 32px | 600 | Section titles |
-| `--text-h3` | Inter | 20px / 28px | 600 | Card titles |
-| `--text-body` | Inter | 16px / 24px | 400 | Body |
-| `--text-small` | Inter | 14px / 20px | 400 | Meta, labels |
-| `--text-button` | Inter | 16px / 24px | 600 | Buttons |
+| `--font-family` | Source Sans 3 | — | — | Body / UI |
+| `--font-display` | Fraunces | — | 600–700 | Brand, page titles |
+| `--text-h1` | Fraunces | 32–48px / 1.2 | 700 | Page titles |
+| `--text-h2` | Fraunces | 24–30px / 1.25 | 700 | Section titles |
+| `--text-h3` | Source Sans 3 | 20px / 28px | 600 | Card titles |
+| `--text-body` | Source Sans 3 | 16px / 24px | 400 | Body |
+| `--text-small` | Source Sans 3 | 14px / 20px | 400 | Meta, labels |
+| `--text-button` | Source Sans 3 | 16px / 24px | 600 | Buttons |
 
 ### Spacing & layout
 
@@ -280,13 +285,14 @@ Figma export: 1x and 2x for raster; prefer SVG for icons.
 
 ## 10. Definition of done (design → dev)
 
-- [ ] Figma low-fi and hi-fi links added to [README](./README.md)  
-- [ ] BA signed off on navigation flow diagram  
-- [ ] Tokens implemented in theme/CSS variables  
-- [ ] Six routes match wireframe structure  
-- [ ] Responsive verified at 375, 768, 1440  
-- [ ] axe scan: no critical violations on public pages  
-- [ ] Prototype flows match § navigation in wireframes README  
+- [x] Low-fi structure documented in [README](./README.md) (ASCII wireframes + flows)
+- [x] High-fidelity interactive prototype implemented in `job-portal-frontend/`
+- [x] Tokens implemented in theme/CSS variables
+- [x] Six routes match wireframe structure
+- [x] Responsive layouts for mobile, tablet, desktop (filters drawer, sticky apply)
+- [ ] BA signed off on navigation flow diagram
+- [ ] axe scan: no critical violations on public pages (run before release)
+- [ ] Optional: sync Figma files when design tooling is available
 
 ---
 
@@ -302,3 +308,4 @@ Figma export: 1x and 2x for raster; prefer SVG for icons.
 | Date | Change |
 |------|--------|
 | 2026-06-03 | Initial hand-off from wireframe specification (docs substitute for Figma delivery in repo) |
+| 2026-07-10 | Coded hi-fi prototype becomes source of truth; tokens updated (Source Sans 3 / Fraunces); mock data fallback documented |

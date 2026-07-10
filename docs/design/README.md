@@ -2,15 +2,14 @@
 
 This document describes the **low-fidelity wireframes** and **high-fidelity prototype** structure for the Job Portal public-facing experience. Wireframes are specified for a **1440px desktop** artboard; responsive behavior is defined for **mobile (320–767px)**, **tablet (768–1023px)**, and **desktop (1024px+)**.
 
-> **Figma files (to be created or linked by the design team)**  
-> - Low-fidelity: project **Public UI Wireframes**  
-> - High-fidelity: duplicate frames into **Public UI – High Fidelity** (or equivalent) and publish prototype  
-> Replace the placeholder URLs below once files are shared with the Business Analyst and development team.
+> **Delivery note:** Figma was skipped per story instructions. Low-fidelity structure lives in this document; the **high-fidelity interactive prototype** is the React app in `job-portal-frontend/` (run with `npm run dev`). Optional Figma links can be added later if the design team publishes files.
 
 | Deliverable | Owner | Status | Link |
 |-------------|--------|--------|------|
-| Low-fidelity wireframes | Design | Pending | `https://www.figma.com/file/PLACEHOLDER-public-ui-wireframes` |
-| High-fidelity prototype | Design | Pending | `https://www.figma.com/proto/PLACEHOLDER-public-ui-hifi` |
+| Low-fidelity wireframes | Design / Eng | Documented here | This README (ASCII frames + flows) |
+| High-fidelity prototype | Eng | Implemented | `job-portal-frontend/` — share Vite preview URL |
+| Design hand-off | Eng | Ready | [DESIGN-HANDOFF.md](./DESIGN-HANDOFF.md) |
+| Figma (optional) | Design | Pending | `https://www.figma.com/file/PLACEHOLDER-public-ui-wireframes` |
 
 ---
 

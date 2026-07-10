@@ -15,7 +15,8 @@ Wireframe specifications and developer hand-off for public UI work:
 | [docs/design/README.md](./docs/design/README.md) | Low-fidelity wireframes, page layouts, navigation flows, responsive notes |
 | [docs/design/DESIGN-HANDOFF.md](./docs/design/DESIGN-HANDOFF.md) | Tokens, components, accessibility, API mapping for implementation |
 
-Figma deliverables (**Public UI Wireframes** and high-fidelity prototype) should be linked in the design README once created and shared with the Business Analyst.
+**High-fidelity prototype:** the interactive React app in `job-portal-frontend/` (Figma skipped; run `npm run dev` and share the preview URL with the BA).
+
 
 ## Vision
 

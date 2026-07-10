@@ -12,6 +12,9 @@ export interface Job {
   category: string
   company: Company | string
   featured?: boolean
+  employmentType?: string
+  postedAt?: string
+  benefits?: string
 }
 
 export interface JobsListResponse {

@@ -183,9 +183,9 @@ function ApplyForm() {
       </nav>
 
       <header className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Apply for this role</h1>
+        <h1 className="font-display text-3xl font-bold text-ink sm:text-4xl">Apply for this role</h1>
         {jobLoading && (
-          <p className="mt-2 text-slate-600" role="status">
+          <p className="mt-2 text-ink-muted" role="status">
             Loading job details…
           </p>
         )}
@@ -195,13 +195,13 @@ function ApplyForm() {
           </p>
         )}
         {job && !jobLoading && (
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-ink-muted">
             {job.title} at {getCompanyName(job.company)}
           </p>
         )}
       </header>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-surface-border bg-white p-6 shadow-card">
         {serverError && (
           <div role="alert" className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
             {serverError}
@@ -233,7 +233,7 @@ function ApplyForm() {
 
             <div>
               <label htmlFor="apply-resume" className={labelClassName}>
-                Resume <span className="font-normal text-slate-500">(optional)</span>
+                Resume <span className="font-normal text-ink-muted">(optional)</span>
               </label>
               <input
                 id="apply-resume"
@@ -242,9 +242,9 @@ function ApplyForm() {
                 onChange={handleResumeChange}
                 aria-invalid={Boolean(resumeError)}
                 aria-describedby={resumeError ? 'apply-resume-error' : 'apply-resume-hint'}
-                className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-700 hover:file:bg-primary-100"
+                className="block w-full text-sm text-ink-secondary file:mr-4 file:rounded-md file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-700 hover:file:bg-primary-100"
               />
-              <p id="apply-resume-hint" className="mt-1 text-xs text-slate-500">
+              <p id="apply-resume-hint" className="mt-1 text-xs text-ink-muted">
                 PDF or Word format, up to {MAX_RESUME_SIZE_BYTES / (1024 * 1024)} MB.
               </p>
               {resumeError && (
@@ -253,7 +253,7 @@ function ApplyForm() {
                 </p>
               )}
               {resumeFile && (
-                <p className="mt-1 text-sm text-slate-600" role="status">
+                <p className="mt-1 text-sm text-ink-secondary" role="status">
                   Selected: {resumeFile.name}
                 </p>
               )}
@@ -265,14 +265,11 @@ function ApplyForm() {
               type="submit"
               disabled={isSubmitting || jobLoading}
               aria-busy={isSubmitting}
-              className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-base font-semibold text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary flex-1"
             >
               {isSubmitting ? 'Submitting…' : 'Submit application'}
             </button>
-            <Link
-              to={`/jobs/${jobId}`}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-            >
+            <Link to={`/jobs/${jobId}`} className="btn-secondary">
               Cancel
             </Link>
           </div>
