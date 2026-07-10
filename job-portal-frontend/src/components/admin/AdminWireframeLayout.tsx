@@ -1,21 +1,25 @@
-import { DashboardShell } from '../wireframe/DashboardShell'
+import { DashboardShell } from '../wireframe/DashboardShell';
 
 const adminNav = [
-  { label: 'Overview', to: '/admin', end: true, interactionId: 'admin.nav.overview' },
-  { label: 'Users', to: '/admin/users', interactionId: 'admin.nav.users' },
-  { label: 'Jobs', to: '/admin/jobs', interactionId: 'admin.nav.jobs' },
-  { label: 'Categories', to: '/admin/categories', interactionId: 'admin.nav.categories' },
-  { label: 'Settings', to: '/admin/settings', interactionId: 'admin.nav.settings' },
-]
+  { label: 'Overview', to: '/wireframes/admin', end: true, interactionId: 'admin.nav.overview' },
+  { label: 'Users', to: '/wireframes/admin/users', interactionId: 'admin.nav.users' },
+  { label: 'Jobs', to: '/wireframes/admin/jobs', interactionId: 'admin.nav.jobs' },
+  {
+    label: 'Categories',
+    to: '/wireframes/admin/categories',
+    interactionId: 'admin.nav.categories',
+  },
+  { label: 'Settings', to: '/wireframes/admin/settings', interactionId: 'admin.nav.settings' },
+];
 
 export function AdminWireframeLayout() {
   return (
     <DashboardShell
       brand="JobPortal Admin"
       roleLabel="Admin wireframes"
-      homeTo="/admin"
+      homeTo="/wireframes/admin"
       navItems={adminNav}
       userName="Admin Reviewer"
     />
-  )
+  );
 }

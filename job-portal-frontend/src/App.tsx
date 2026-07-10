@@ -1,9 +1,16 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminWireframeLayout } from './components/admin/AdminWireframeLayout';
 import { EmployerLayout } from './components/employer/EmployerLayout';
 import { EmployerWireframeLayout } from './components/employer/EmployerWireframeLayout';
 import { EmployerRoute } from './components/EmployerRoute';
+import { PrivateRoute } from './components/PrivateRoute';
 import { useAuth } from './context/AuthContext';
+import { AnalyticsPage } from './pages/admin/AnalyticsPage';
+import { CategoriesPage } from './pages/admin/CategoriesPage';
+import { JobsPage as AdminJobsPage } from './pages/admin/JobsPage';
+import { SettingsPage } from './pages/admin/SettingsPage';
+import { UsersPage } from './pages/admin/UsersPage';
 import { ApplyPage } from './pages/ApplyPage';
 import { ForbiddenPage } from './pages/ForbiddenPage';
 import { HomePage } from './pages/HomePage';
@@ -16,7 +23,7 @@ import { ApplicationsPage } from './pages/employer/ApplicationsPage';
 import { JobFormPage } from './pages/employer/JobFormPage';
 import { JobListPage } from './pages/employer/JobListPage';
 import { AdminCategoriesPage } from './pages/wireframes/admin/AdminCategoriesPage';
-import { AdminJobsPage } from './pages/wireframes/admin/AdminJobsPage';
+import { AdminJobsPage as AdminJobsWireframePage } from './pages/wireframes/admin/AdminJobsPage';
 import { AdminOverviewPage } from './pages/wireframes/admin/AdminOverviewPage';
 import { AdminSettingsPage } from './pages/wireframes/admin/AdminSettingsPage';
 import { AdminUsersPage } from './pages/wireframes/admin/AdminUsersPage';
@@ -110,12 +117,28 @@ function App() {
           <Route path="/applications" element={<ApplicationsPage />} />
         </Route>
 
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute requiredRole="admin">
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="analytics" replace />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="jobs" element={<AdminJobsPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+
         <Route path="/wireframes" element={<WireframeIndexPage />} />
 
-        <Route path="/admin" element={<AdminWireframeLayout />}>
+        <Route path="/wireframes/admin" element={<AdminWireframeLayout />}>
           <Route index element={<AdminOverviewPage />} />
           <Route path="users" element={<AdminUsersPage />} />
-          <Route path="jobs" element={<AdminJobsPage />} />
+          <Route path="jobs" element={<AdminJobsWireframePage />} />
           <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />
         </Route>

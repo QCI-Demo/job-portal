@@ -1,14 +1,16 @@
-import { Link } from 'react-router-dom'
-import { PlaceholderChart } from '../../../components/wireframe/PlaceholderChart'
-import { PlaceholderTable } from '../../../components/wireframe/PlaceholderTable'
-import { adminActivity, adminKpis } from '../../../data/wireframeMock'
+import { Link } from 'react-router-dom';
+import { PlaceholderChart } from '../../../components/wireframe/PlaceholderChart';
+import { PlaceholderTable } from '../../../components/wireframe/PlaceholderTable';
+import { adminActivity, adminKpis } from '../../../data/wireframeMock';
 
 export function AdminOverviewPage() {
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-ink-muted">Admin · Overview</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
+            Admin · Overview
+          </p>
           <h1 className="font-display text-3xl font-bold text-ink">Dashboard overview</h1>
           <p className="mt-1 text-ink-muted">Analytics widgets and moderation queue preview.</p>
         </div>
@@ -35,14 +37,26 @@ export function AdminOverviewPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <PlaceholderChart title="Applications over time" variant="line" interactionId="admin.chart.applications" />
-        <PlaceholderChart title="Jobs by status" variant="donut" interactionId="admin.chart.jobStatus" />
+        <PlaceholderChart
+          title="Applications over time"
+          variant="line"
+          interactionId="admin.chart.applications"
+        />
+        <PlaceholderChart
+          title="Jobs by status"
+          variant="donut"
+          interactionId="admin.chart.jobStatus"
+        />
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-xl font-semibold text-ink">Recent activity</h2>
-          <Link to="/admin/jobs" className="text-sm font-semibold text-primary-700" data-interaction="admin.activity.viewAll">
+          <Link
+            to="/wireframes/admin/jobs"
+            className="text-sm font-semibold text-primary-700"
+            data-interaction="admin.activity.viewAll"
+          >
             View moderation queue →
           </Link>
         </div>
@@ -59,7 +73,7 @@ export function AdminOverviewPage() {
               header: 'Actions',
               render: (row) => (
                 <Link
-                  to={row.type === 'Job' ? '/admin/jobs' : '/admin/users'}
+                  to={row.type === 'Job' ? '/wireframes/admin/jobs' : '/wireframes/admin/users'}
                   className="font-semibold text-primary-700"
                   data-interaction={`admin.activity.review.${row.id}`}
                 >
@@ -71,5 +85,5 @@ export function AdminOverviewPage() {
         />
       </section>
     </div>
-  )
+  );
 }

@@ -41,10 +41,12 @@ npm run dev
 
 ## Dashboard wireframes (stakeholder review)
 
-| Area         | URL                                                                             |
-| ------------ | ------------------------------------------------------------------------------- |
-| Screen index | `/wireframes`                                                                   |
-| Admin        | `/admin`, `/admin/users`, `/admin/jobs`, `/admin/categories`, `/admin/settings` |
-| Employer     | `/employer`, `/employer/jobs`, `/employer/jobs/new`, `/employer/applications`   |
+| Area         | URL                                                                           |
+| ------------ | ----------------------------------------------------------------------------- |
+| Screen index | `/wireframes`                                                                 |
+| Admin        | `/wireframes/admin`, `/wireframes/admin/users`, `/wireframes/admin/jobs`, …   |
+| Employer     | `/employer`, `/employer/jobs`, `/employer/jobs/new`, `/employer/applications` |
+
+Production admin (role-guarded): `/admin/analytics`, `/admin/users`, `/admin/jobs`, `/admin/categories`, `/admin/settings`.
 
 Design docs: `docs/design/admin-employer-wireframes.md`, `docs/design/DASHBOARD-DESIGN-HANDOFF.md`.
