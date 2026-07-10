@@ -39,16 +39,16 @@ export function getRolesFromToken(token?: string | null): string[] {
   if (!payload) return [];
 
   if (Array.isArray(payload.roles) && payload.roles.length > 0) {
-    return payload.roles;
+    return payload.roles.map((role) => role.toLowerCase());
   }
 
   if (payload.role) {
-    return [payload.role];
+    return [payload.role.toLowerCase()];
   }
 
   return [];
 }
 
 export function hasRequiredRole(userRoles: string[], requiredRole: string): boolean {
-  return userRoles.includes(requiredRole);
+  return userRoles.map((role) => role.toLowerCase()).includes(requiredRole.toLowerCase());
 }

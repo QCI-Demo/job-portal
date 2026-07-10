@@ -1,10 +1,10 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
-import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminWireframeLayout } from './components/admin/AdminWireframeLayout';
-import { EmployerLayout } from './components/employer/EmployerLayout';
 import { EmployerWireframeLayout } from './components/employer/EmployerWireframeLayout';
-import { EmployerRoute } from './components/EmployerRoute';
-import { PrivateRoute } from './components/PrivateRoute';
+import {
+  ProtectedAdminLayout,
+  ProtectedEmployerLayout,
+} from './components/ProtectedDashboards';
 import { useAuth } from './context/AuthContext';
 import { AnalyticsPage } from './pages/admin/AnalyticsPage';
 import { CategoriesPage } from './pages/admin/CategoriesPage';
@@ -33,7 +33,7 @@ import { EmployerJobFormPage } from './pages/wireframes/employer/EmployerJobForm
 import { EmployerJobsPage } from './pages/wireframes/employer/EmployerJobsPage';
 import { EmployerOverviewPage } from './pages/wireframes/employer/EmployerOverviewPage';
 import { WireframeIndexPage } from './pages/wireframes/WireframeIndexPage';
-import { getRolesFromToken, hasRequiredRole } from './utils/jwt';
+import { AuthService, getRoles, isEmployer as tokenIsEmployer } from './services/AuthService';
 
 function SessionLoading() {
   return (
@@ -45,12 +45,16 @@ function SessionLoading() {
 
 function useResolvedRoles() {
   const { user, loading, isAuthenticated } = useAuth();
-  const roles = user?.roles ?? getRolesFromToken();
+  const roles = user?.roles?.length ? user.roles : getRoles();
+  const isEmployer =
+    isAuthenticated &&
+    (roles.some((role) => role.toLowerCase() === 'employer') || tokenIsEmployer());
 
   return {
     loading,
     isAuthenticated,
-    isEmployer: isAuthenticated && hasRequiredRole(roles, 'employer'),
+    isEmployer,
+    isAdmin: isAuthenticated && AuthService.isAdmin(),
   };
 }
 
@@ -65,11 +69,7 @@ function JobsRouteLayout() {
   }
 
   if (isEmployerOnlyPath || isEmployer) {
-    return (
-      <EmployerRoute>
-        <EmployerLayout />
-      </EmployerRoute>
-    );
+    return <ProtectedEmployerLayout />;
   }
 
   return <Outlet />;
@@ -105,26 +105,14 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/auth" element={<Navigate to="/login" replace />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/forbidden" element={<ForbiddenPage />} />
+        <Route path="/403" element={<ForbiddenPage />} />
+        <Route path="/forbidden" element={<Navigate to="/403" replace />} />
 
-        <Route
-          element={
-            <EmployerRoute>
-              <EmployerLayout />
-            </EmployerRoute>
-          }
-        >
+        <Route element={<ProtectedEmployerLayout />}>
           <Route path="/applications" element={<ApplicationsPage />} />
         </Route>
 
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute requiredRole="admin">
-              <AdminLayout />
-            </PrivateRoute>
-          }
-        >
+        <Route path="/admin" element={<ProtectedAdminLayout />}>
           <Route index element={<Navigate to="analytics" replace />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="users" element={<UsersPage />} />
