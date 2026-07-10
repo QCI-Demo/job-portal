@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { fetchFeaturedJobs } from '../api/jobs'
+import { Carousel } from '../components/Carousel'
 import { JobCard } from '../components/JobCard'
 import { Layout } from '../components/Layout'
 import type { Job } from '../types/job'
@@ -123,7 +124,9 @@ export function HomePage() {
             <h2 id="featured-heading" className="font-display text-3xl font-bold text-ink">
               Featured jobs
             </h2>
-            <p className="mt-2 text-ink-muted">Hand-picked openings updated regularly.</p>
+            <p className="mt-2 text-ink-muted">
+              Hand-picked openings updated regularly. Use arrow keys to browse the carousel.
+            </p>
           </div>
           <Link to="/jobs" className="btn-secondary !min-h-[40px] !px-4 !py-2 !text-sm">
             View all jobs
@@ -143,17 +146,14 @@ export function HomePage() {
         )}
 
         {!loading && !error && (
-          <ul
-            className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-            role="list"
-            aria-label="Featured job listings"
-          >
-            {featuredJobs.map((job) => (
-              <li key={job.id}>
-                <JobCard job={job} />
-              </li>
-            ))}
-          </ul>
+          <div className="mt-8 max-w-3xl">
+            <Carousel
+              label="Featured job listings"
+              items={featuredJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            />
+          </div>
         )}
       </section>
 

@@ -59,7 +59,7 @@ export function Carousel({ items, label, className = '' }: CarouselProps) {
 
   if (!hasItems) {
     return (
-      <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">
+      <p className="rounded-lg border border-dashed border-surface-border bg-surface p-8 text-center text-ink-muted">
         No featured jobs available right now.
       </p>
     )
@@ -73,7 +73,7 @@ export function Carousel({ items, label, className = '' }: CarouselProps) {
       onKeyDown={onKeyDown}
     >
       <div ref={liveRef} className="sr-only" aria-live="polite" aria-atomic="true" />
-      <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="relative overflow-hidden rounded-xl border border-surface-border bg-white shadow-card">
         <div
           id={regionId}
           role="group"
@@ -83,12 +83,13 @@ export function Carousel({ items, label, className = '' }: CarouselProps) {
         >
           {items[activeIndex]}
         </div>
-        <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 sm:px-6">
+        <div className="flex items-center justify-between gap-2 border-t border-surface-border px-4 py-3 sm:px-6">
           <button
             type="button"
             onClick={goPrev}
             aria-controls={regionId}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            aria-label="Previous featured job"
+            className="btn-secondary !min-h-[44px] !px-3 !py-2 !text-sm"
           >
             Previous
           </button>
@@ -105,8 +106,8 @@ export function Carousel({ items, label, className = '' }: CarouselProps) {
                 aria-selected={index === activeIndex}
                 aria-label={`Go to slide ${index + 1}`}
                 onClick={() => goTo(index)}
-                className={`h-2.5 w-2.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  index === activeIndex ? 'bg-primary-600' : 'bg-slate-300 hover:bg-slate-400'
+                className={`h-3 w-3 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 ${
+                  index === activeIndex ? 'bg-primary-600' : 'bg-surface-border hover:bg-ink-muted'
                 }`}
               />
             ))}
@@ -115,7 +116,8 @@ export function Carousel({ items, label, className = '' }: CarouselProps) {
             type="button"
             onClick={goNext}
             aria-controls={regionId}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            aria-label="Next featured job"
+            className="btn-secondary !min-h-[44px] !px-3 !py-2 !text-sm"
           >
             Next
           </button>
