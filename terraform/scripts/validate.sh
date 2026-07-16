@@ -9,6 +9,8 @@ DIRS=(
   "$ROOT/modules/ecs"
   "$ROOT/backend"
   "$ROOT/environments/dev"
+  "$ROOT/environments/staging"
+  "$ROOT/environments/production"
 )
 
 echo "==> terraform fmt -check -recursive"

@@ -14,7 +14,9 @@ terraform/
 │   ├── rds/                 # PostgreSQL with Secrets Manager + IAM auth
 │   └── ecs/                 # ECS cluster, execution role, SG
 └── environments/
-    └── dev/                 # Example environment composition
+    ├── dev/                 # Example environment composition
+    ├── staging/             # Staging (CI/CD auto-apply)
+    └── production/          # Production (manual approval gate)
 ```
 
 ## Bootstrap order
@@ -47,5 +49,11 @@ terraform apply -var-file=bootstrap.tfvars
 
 ## Environments
 
-Copy `environments/dev` for `staging` and `prod`, adjusting CIDRs, instance
-sizes, Multi-AZ, and deletion protection.
+| Environment | Path | Notes |
+|-------------|------|-------|
+| dev | `environments/dev` | Local / sandbox |
+| staging | `environments/staging` | Auto-applied by CI after Docker push |
+| production | `environments/production` | Applied only after `prod-approval` gate |
+
+CI selects Terraform workspaces `staging` / `production` before apply. See
+[`docs/ci-cd-pipeline.md`](../docs/ci-cd-pipeline.md).
