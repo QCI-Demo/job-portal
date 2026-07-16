@@ -1,7 +1,7 @@
 # Job Portal CI/CD Pipeline
 #
 # Triggers on pull_request and push to main/develop.
-# Lint → test → Docker build/push (ECR) → Terraform staging.
+# Lint → test → Docker build/push (ECR) → Trivy security scan → Terraform staging.
 # Production deploy requires workflow_dispatch + prod-approval gate.
 
 name: CI/CD Pipeline
@@ -170,11 +170,96 @@ jobs:
         run: echo "image_tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   # -------------------------------------------------------------------------
+  # Job: security-scan — Trivy image scan, fail-fast on CRITICAL, Slack notify
+  # -------------------------------------------------------------------------
+  security-scan:
+    name: Security scan (Trivy)
+    needs: build
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Resolve ECR image URI
+        id: ecr
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          REPO_NAME="${ECR_REPO:-job-portal-backend}"
+          if [[ "$REPO_NAME" == *".dkr.ecr."* ]]; then
+            IMAGE_URI="$REPO_NAME"
+          else
+            IMAGE_URI="${REGISTRY}/${REPO_NAME}"
+          fi
+          # Story scan command uses env.ECR_REPO; set to full URI for docker/trivy
+          echo "ECR_REPO=${IMAGE_URI}" >> "$GITHUB_ENV"
+          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Amazon ECR
+        run: |
+          set -euo pipefail
+          aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" \
+            | docker login --username AWS --password-stdin "${{ steps.ecr.outputs.registry }}"
+
+      - name: Pull image for local scan
+        run: |
+          set -euo pipefail
+          docker pull "${{ env.ECR_REPO }}:${{ github.sha }}"
+
+      - name: Install Trivy
+        run: |
+          set -euo pipefail
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin
+
+      - name: Scan image with Trivy
+        run: |
+          set -euo pipefail
+          trivy image --severity HIGH,CRITICAL --format json -o trivy-report.json \
+            "${{ env.ECR_REPO }}:${{ github.sha }}"
+
+      - name: Upload Trivy report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Fail on CRITICAL findings
+        run: |
+          set -euo pipefail
+          bash scripts/check_trivy.sh trivy-report.json
+
+      - name: Notify Slack on security scan failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: >
+              :warning: *Job Portal security scan failed*
+              Commit: `${{ github.sha }}`
+              Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              Actor: ${{ github.actor }}
+              Branch: ${{ github.ref_name }}
+
+  # -------------------------------------------------------------------------
   # Job: terraform-apply-staging
   # -------------------------------------------------------------------------
   terraform-apply-staging:
     name: Terraform apply (staging)
-    needs: build
+    needs: [build, security-scan]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
