@@ -1,1 +1,0 @@
-"""Job Portal backend service."""
