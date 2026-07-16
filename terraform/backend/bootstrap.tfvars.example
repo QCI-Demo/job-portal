@@ -1,0 +1,11 @@
+# Example tfvars — replace placeholders before apply
+name_prefix         = "job-portal"
+bucket_name         = "job-portal-terraform-state-REPLACE_ACCOUNT_ID"
+dynamodb_table_name = "job-portal-terraform-locks"
+cicd_role_arn       = "arn:aws:iam::REPLACE_ACCOUNT_ID:role/job-portal-cicd-role"
+
+tags = {
+  Project     = "job-portal"
+  ManagedBy   = "terraform"
+  Component   = "remote-state"
+}
