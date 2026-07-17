@@ -16,7 +16,7 @@ File: [`.github/workflows/ci-cd.yml`](../.github/workflows/ci-cd.yml)
 | Trigger | Jobs |
 |---------|------|
 | `pull_request` (main, develop) | checkout → lint, test |
-| `push` (main, develop) | checkout → lint, test → build → terraform-apply-staging |
+| `push` (main, develop) | checkout → lint, test → build → security-scan → terraform-apply-staging |
 | `workflow_dispatch` | full pipeline + approval → terraform-apply-prod |
 
 ### Job graph
@@ -26,10 +26,13 @@ checkout
    ├── lint (ESLint / frontend)
    └── test (pytest / backend)
             └── build (Docker → ECR)          [push | workflow_dispatch]
-                     └── terraform-apply-staging
-                              └── approval (environment: prod-approval)
-                                       └── terraform-apply-prod
+                     └── security-scan (Trivy + CRITICAL gate + Slack on failure)
+                              └── terraform-apply-staging
+                                       └── approval (environment: prod-approval)
+                                                └── terraform-apply-prod
 ```
+
+Security scanning details: [`docs/security-scanning.md`](security-scanning.md).
 
 ## Tasks completed
 
@@ -61,6 +64,7 @@ The `approval` and `terraform-apply-prod` jobs both reference
 | Name | Type | Purpose |
 |------|------|---------|
 | `AWS_ROLE_ARN` | Secret | IAM role assumed via OIDC (`aws-actions/configure-aws-credentials`) |
+| `SLACK_WEBHOOK_URL` | Secret | Slack incoming webhook for security-scan failure alerts |
 | `AWS_DEFAULT_REGION` | Variable | AWS region (default `us-east-1`) |
 | `ECR_REPO` | Variable | ECR repository name or full URI (default `job-portal-backend`) |
 

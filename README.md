@@ -10,10 +10,11 @@ GitHub Actions workflow: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd
 | Trigger | Pipeline |
 |---------|----------|
 | `pull_request` (`main`, `develop`) | checkout → lint → test |
-| `push` (`main`, `develop`) | + Docker build/push to ECR → Terraform apply (staging) |
+| `push` (`main`, `develop`) | + Docker build/push to ECR → Trivy security scan → Terraform apply (staging) |
 | `workflow_dispatch` | + `prod-approval` gate → Terraform apply (production) |
 
 Details and required secrets/variables: [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md).
+Security scanning (Trivy, CRITICAL fail-fast, Slack alerts): [`docs/security-scanning.md`](docs/security-scanning.md).
 
 ```bash
 # Frontend lint
