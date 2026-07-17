@@ -3,6 +3,26 @@
 Cloud-native job portal with automated CI/CD and AWS infrastructure provisioned
 via Terraform.
 
+## CI/CD
+
+GitHub Actions workflow: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
+
+| Trigger | Pipeline |
+|---------|----------|
+| `pull_request` (`main`, `develop`) | checkout → lint → test |
+| `push` (`main`, `develop`) | + Docker build/push to ECR → Terraform apply (staging) |
+| `workflow_dispatch` | + `prod-approval` gate → Terraform apply (production) |
+
+Details and required secrets/variables: [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md).
+
+```bash
+# Frontend lint
+cd frontend && npm ci && npm run lint
+
+# Backend tests
+cd backend && pip install -r requirements.txt && pytest -q
+```
+
 ## Terraform
 
 Reusable modules and remote state bootstrap live under [`terraform/`](terraform/README.md):

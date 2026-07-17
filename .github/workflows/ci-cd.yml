@@ -1,0 +1,276 @@
+# Job Portal CI/CD Pipeline
+#
+# Triggers on pull_request and push to main/develop.
+# Lint → test → Docker build/push (ECR) → Terraform staging.
+# Production deploy requires workflow_dispatch + prod-approval gate.
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: "Deploy to production after staging (requires approval)"
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION || 'us-east-1' }}
+  ECR_REPO: ${{ vars.ECR_REPO }}
+  TF_WORKING_DIR_STAGING: terraform/environments/staging
+  TF_WORKING_DIR_PRODUCTION: terraform/environments/production
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.12"
+  TERRAFORM_VERSION: "1.9.8"
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Job: checkout — verify repository checkout (skeleton job)
+  # -------------------------------------------------------------------------
+  checkout:
+    name: Checkout
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Confirm workspace layout
+        run: |
+          test -d frontend
+          test -d backend
+          test -f backend/Dockerfile
+          test -d terraform/environments/staging
+          echo "Checkout OK"
+
+  # -------------------------------------------------------------------------
+  # Job: lint — ESLint (frontend)
+  # -------------------------------------------------------------------------
+  lint:
+    name: Lint (frontend)
+    needs: checkout
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # -------------------------------------------------------------------------
+  # Job: test — pytest (backend)
+  # -------------------------------------------------------------------------
+  test:
+    name: Test (backend)
+    needs: checkout
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest -q
+        # Non-zero exit codes fail the job (default GitHub Actions behavior)
+
+  # -------------------------------------------------------------------------
+  # Job: build — Docker build + push to Amazon ECR
+  # -------------------------------------------------------------------------
+  build:
+    name: Build and push Docker image
+    needs: [lint, test]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Resolve ECR registry and ensure repository
+        id: ecr
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          REPO_NAME="${ECR_REPO:-job-portal-backend}"
+          # Allow ECR_REPO to be either a short name or a full URI
+          if [[ "$REPO_NAME" == *".dkr.ecr."* ]]; then
+            IMAGE_URI="$REPO_NAME"
+            REPO_NAME="${REPO_NAME##*/}"
+          else
+            IMAGE_URI="${REGISTRY}/${REPO_NAME}"
+          fi
+          aws ecr describe-repositories --repository-names "$REPO_NAME" >/dev/null 2>&1 \
+            || aws ecr create-repository --repository-name "$REPO_NAME" >/dev/null
+          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+          echo "repo_name=${REPO_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Amazon ECR
+        run: |
+          set -euo pipefail
+          aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" \
+            | docker login --username AWS --password-stdin "${{ steps.ecr.outputs.registry }}"
+
+      - name: Build Docker image
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${{ steps.ecr.outputs.image_uri }}"
+          docker build -t "${IMAGE_URI}:${{ github.sha }}" -t "${IMAGE_URI}:latest" .
+
+      - name: Push Docker image
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${{ steps.ecr.outputs.image_uri }}"
+          docker push "${IMAGE_URI}:${{ github.sha }}"
+          docker push "${IMAGE_URI}:latest"
+
+      - name: Export image tag
+        id: meta
+        run: echo "image_tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+  # -------------------------------------------------------------------------
+  # Job: terraform-apply-staging
+  # -------------------------------------------------------------------------
+  terraform-apply-staging:
+    name: Terraform apply (staging)
+    needs: build
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR_STAGING }}
+    env:
+      TF_VAR_image_tag: ${{ needs.build.outputs.image_tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Select staging workspace
+        run: |
+          set -euo pipefail
+          terraform workspace select staging \
+            || terraform workspace new staging
+
+      - name: Terraform plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -input=false tfplan
+
+  # -------------------------------------------------------------------------
+  # Job: approval — GitHub Environment protection gate (prod-approval)
+  # -------------------------------------------------------------------------
+  approval:
+    name: Production approval gate
+    needs: terraform-apply-staging
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: prod-approval
+    steps:
+      - name: Record approval
+        run: |
+          echo "Production deployment approved by a required reviewer on environment prod-approval."
+          echo "Actor: ${{ github.actor }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+
+  # -------------------------------------------------------------------------
+  # Job: terraform-apply-prod — production deploy after approval
+  # -------------------------------------------------------------------------
+  terraform-apply-prod:
+    name: Terraform apply (production)
+    needs: approval
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: prod-approval
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR_PRODUCTION }}
+    env:
+      TF_VAR_image_tag: ${{ github.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Select production workspace
+        run: |
+          set -euo pipefail
+          terraform workspace select production \
+            || terraform workspace new production
+
+      - name: Terraform plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -input=false tfplan
