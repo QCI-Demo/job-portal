@@ -1,0 +1,100 @@
+.dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--dashboard-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  font-family: inherit;
+}
+
+.dashboard-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard-btn--sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.dashboard-btn--md {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.dashboard-btn--lg {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.dashboard-btn--primary {
+  background-color: var(--dashboard-primary);
+  color: #fff;
+}
+
+.dashboard-btn--primary:hover:not(:disabled) {
+  background-color: var(--dashboard-primary-hover);
+}
+
+.dashboard-btn--secondary {
+  background-color: var(--dashboard-surface);
+  color: var(--dashboard-text);
+  border-color: var(--dashboard-border);
+}
+
+.dashboard-btn--secondary:hover:not(:disabled) {
+  background-color: var(--dashboard-bg);
+}
+
+.dashboard-btn--danger {
+  background-color: var(--dashboard-danger);
+  color: #fff;
+}
+
+.dashboard-btn--danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.dashboard-btn--ghost {
+  background-color: transparent;
+  color: var(--dashboard-primary);
+}
+
+.dashboard-btn--ghost:hover:not(:disabled) {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+.dashboard-btn--full-width {
+  width: 100%;
+}
+
+.dashboard-btn--loading {
+  position: relative;
+}
+
+.dashboard-btn__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: dashboard-spin 0.6s linear infinite;
+}
+
+.dashboard-btn__label--hidden {
+  visibility: hidden;
+  position: absolute;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

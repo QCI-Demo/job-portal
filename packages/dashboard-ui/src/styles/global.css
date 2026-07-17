@@ -1,0 +1,27 @@
+:root {
+  --dashboard-primary: #2563eb;
+  --dashboard-primary-hover: #1d4ed8;
+  --dashboard-secondary: #64748b;
+  --dashboard-danger: #dc2626;
+  --dashboard-success: #16a34a;
+  --dashboard-bg: #f8fafc;
+  --dashboard-surface: #ffffff;
+  --dashboard-border: #e2e8f0;
+  --dashboard-text: #0f172a;
+  --dashboard-text-muted: #64748b;
+  --dashboard-radius: 8px;
+  --dashboard-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --dashboard-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dashboard-ui {
+  font-family: var(--dashboard-font);
+  color: var(--dashboard-text);
+  box-sizing: border-box;
+}
+
+.dashboard-ui *,
+.dashboard-ui *::before,
+.dashboard-ui *::after {
+  box-sizing: border-box;
+}
