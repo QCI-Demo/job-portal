@@ -7,6 +7,7 @@ DIRS=(
   "$ROOT/modules/vpc"
   "$ROOT/modules/rds"
   "$ROOT/modules/ecs"
+  "$ROOT/modules/monitoring"
   "$ROOT/backend"
   "$ROOT/environments/dev"
   "$ROOT/environments/staging"

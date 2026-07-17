@@ -91,6 +91,18 @@ variable "tags" {
   }
 }
 
+variable "budget_alert_email" {
+  description = "Email for AWS Budget SNS alerts (ops / tech lead)"
+  type        = string
+  default     = "nikhil.n@tymeline.id"
+}
+
+variable "ecs_service_name" {
+  description = "Optional ECS service name for CloudWatch widgets"
+  type        = string
+  default     = ""
+}
+
 data "aws_caller_identity" "current" {}
 
 resource "aws_security_group" "alb" {
@@ -186,6 +198,21 @@ module "rds" {
   tags = var.tags
 }
 
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  name_prefix      = var.name_prefix
+  environment      = var.environment
+  alert_email      = var.budget_alert_email
+  create_budget    = false # account budget is owned by staging
+  ecs_cluster_name = module.ecs.cluster_name
+  ecs_service_name = var.ecs_service_name
+  rds_instance_id  = module.rds.db_instance_id
+  aws_region       = var.aws_region
+
+  tags = var.tags
+}
+
 output "vpc_id" {
   value = module.vpc.vpc_id
 }
@@ -220,4 +247,12 @@ output "rds_endpoint" {
 
 output "rds_port" {
   value = module.rds.port
+}
+
+output "cloudwatch_dashboard_name" {
+  value = module.monitoring.dashboard_name
+}
+
+output "budget_sns_topic_arn" {
+  value = module.monitoring.sns_topic_arn
 }

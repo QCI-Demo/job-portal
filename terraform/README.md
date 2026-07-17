@@ -12,10 +12,11 @@ terraform/
 │   ├── iam/                 # CI/CD, ECS execution, RDS access roles
 │   ├── vpc/                 # VPC, subnets, NAT, route tables
 │   ├── rds/                 # PostgreSQL with Secrets Manager + IAM auth
-│   └── ecs/                 # ECS cluster, execution role, SG
+│   ├── ecs/                 # ECS cluster, execution role, SG
+│   └── monitoring/          # CloudWatch dashboards, Budgets, SNS alerts
 └── environments/
     ├── dev/                 # Example environment composition
-    ├── staging/             # Staging (CI/CD auto-apply)
+    ├── staging/             # Staging (CI/CD auto-apply) + account budget
     └── production/          # Production (manual approval gate)
 ```
 
@@ -23,7 +24,7 @@ terraform/
 
 1. Apply IAM module (or create CI/CD role) so a role ARN exists.
 2. Apply `backend/` in a dedicated Terraform workspace to create the state bucket and lock table.
-3. Configure S3 backend on environment roots and apply VPC → ECS → RDS.
+3. Configure S3 backend on environment roots and apply VPC → ECS → RDS → monitoring.
 
 ```bash
 # Validate all modules
@@ -45,6 +46,7 @@ terraform apply -var-file=bootstrap.tfvars
 | [vpc](modules/vpc) | Multi-AZ VPC with public/private subnets + NAT |
 | [rds](modules/rds) | Encrypted PostgreSQL with IAM auth |
 | [ecs](modules/ecs) | Fargate cluster + ALB-facing security group |
+| [monitoring](modules/monitoring) | CloudWatch ops dashboard, $150 budget, SNS email alerts |
 | [backend](backend) | S3 state + DynamoDB locking |
 
 ## Environments
@@ -52,7 +54,9 @@ terraform apply -var-file=bootstrap.tfvars
 | Environment | Path | Notes |
 |-------------|------|-------|
 | dev | `environments/dev` | Local / sandbox |
-| staging | `environments/staging` | Auto-applied by CI after Docker push |
-| production | `environments/production` | Applied only after production approval gate |
+| staging | `environments/staging` | Auto-applied by CI after Docker push; owns account AWS Budget |
+| production | `environments/production` | Applied only after `prod-approval` gate |
 
-CI should select Terraform workspaces `staging` / `production` before apply.
+CI selects Terraform workspaces `staging` / `production` before apply. See
+[`docs/ci-cd-pipeline.md`](../docs/ci-cd-pipeline.md) and the ops run-book
+[`docs/pipeline/README.md`](../docs/pipeline/README.md).

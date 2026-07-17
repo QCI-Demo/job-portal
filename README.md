@@ -15,6 +15,8 @@ GitHub Actions workflow: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd
 
 Details and required secrets/variables: [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md).
 Security scanning (Trivy, CRITICAL fail-fast, Slack alerts): [`docs/security-scanning.md`](docs/security-scanning.md).
+Ops run-book (approvals, rollback, CloudWatch dashboards): [`docs/pipeline/README.md`](docs/pipeline/README.md).
+Monitoring (dashboards, $150 budget, SNS): [`docs/cloudwatch-budgets-monitoring.md`](docs/cloudwatch-budgets-monitoring.md).
 
 ```bash
 # Frontend lint
@@ -33,6 +35,7 @@ Reusable modules and remote state bootstrap live under [`terraform/`](terraform/
 - **VPC** — public/private subnets across two AZs, NAT, route tables
 - **RDS** — PostgreSQL with Secrets Manager and IAM auth
 - **ECS** — Fargate cluster, execution role, ALB-facing security group
+- **Monitoring** — CloudWatch ops dashboard, AWS Budget ($150), SNS email alerts
 
 ```bash
 ./terraform/scripts/validate.sh
